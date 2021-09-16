@@ -1,12 +1,42 @@
 #include "types.h"
 
+// TODO: Create a method for checking if a square is attacked, then implement it
+//       for king moves. Implement moves of the rest of pieces.
+
 bool Position::IsLegal(eSquares StartingSq, eSquares TargetSq, ePieceType PieceType)
 {
-    if(!(StartingSq & Colour_BB[Rest & U64(1)]) || !(StartingSq & Piece_BB[PieceType]))
+    Bitboards BB;
+    BB.Init();
+    int Col = Rest & U64(1);
+
+    if(!(StartingSq & Colour_BB[Col]) || !(StartingSq & Piece_BB[PieceType]))
         return false;
     
-    if(TargetSq & Colour_BB[Rest & U64(1)])
+    if(TargetSq & Colour_BB[Col])
         return false;
+
+    eMoveType movetype;
+
+    if (PieceType == K)
+    {
+        if(!(BB.GetKingAttacks(StartingSq) & TargetSq))
+        {
+            int CR = CastlingRights(Col);
+            if(CR == 0)
+                return false;
+            
+            if((TargetSq == g8 - (Col * a8)) && (CR & (1)) && (GetPos(NC, NPT) && (K_CASTLE_MASK << North * 7 * (!Col)) == 0))
+                return true;
+            
+            if((TargetSq == c8 - (Col * a8)) && (CR & (2)) && (GetPos(NC, NPT) && (Q_CASTLE_MASK << North * 7 * (!Col)) == 0))
+                return true;
+            
+            return false;
+        }
+        
+    }
+
+    return true;
 }
 
 void Position::Move(eSquares StartingSq, eSquares TargetSq, ePieceType PieceType)
