@@ -25,10 +25,10 @@ bool Position::IsLegal(eSquares StartingSq, eSquares TargetSq, ePieceType PieceT
             if(CR == 0)
                 return false;
             
-            if((TargetSq == g8 - (Col * a8)) && (CR & (1)) && (GetPos(NC, NPT) && (K_CASTLE_MASK << North * 7 * (!Col)) == 0))
+            if((TargetSq == g8 - (!Col * a8)) && (CR & (1)) && ((GetPos(NC, NPT) & (K_CASTLE_MASK << North * 7 * !Col)) == 0))
                 return true;
             
-            if((TargetSq == c8 - (Col * a8)) && (CR & (2)) && (GetPos(NC, NPT) && (Q_CASTLE_MASK << North * 7 * (!Col)) == 0))
+            if((TargetSq == c8 - (!Col * a8)) && (CR & (2)) && ((GetPos(NC, NPT) & (Q_CASTLE_MASK << North * 7 * !Col)) == 0))
                 return true;
             
             return false;
