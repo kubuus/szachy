@@ -58,6 +58,8 @@ constexpr U64 KINGSIDE_BB = ~QUEENSIDE_BB;
 constexpr U64 LIGHT_SQUARES_BB = 0x0102010201020102 | (0x0102010201020102 << 2) | (0x0102010201020102 << 4) | (0x0102010201020102 << 6);
 constexpr U64 DARK_SQUARES_BB = ~LIGHT_SQUARES_BB;
 
+constexpr U64 Q_CASTLE_MASK = U64(14);
+constexpr U64 K_CASTLE_MASK = U64(96);
 
 
 constexpr U64 ShiftNorth(U64 b) {return (b << 8);}
@@ -101,6 +103,8 @@ private:
 public:
     void Init(std::string FEN);
     U64 GetPos(eColour Col, ePieceType PieceType);
+    bool FreeBetween(eSquares StartingSq, eSquares TargetSq);
+    U64 CastlingRights(int Col);
     void Move(eSquares StartingSq, eSquares TargetSq, ePieceType PieceType);
     bool IsLegal(eSquares StartingSq, eSquares TargetSq, ePieceType PieceType);
     void PrintBB(U64 bb);

@@ -73,6 +73,19 @@ U64 Position::GetPos(eColour Col, ePieceType PieceType)
          & (PieceType == NPT ? (U64)(-1) : Piece_BB[PieceType]);
 }
 
+// Method checking for castling rights of given colour,
+// 0 for none, 1 for kingside, 2 for queenside, 3 for both
+U64 Position::CastlingRights(int Col)
+{
+    return ((Rest << (1 + Col*2)) & U64(3));
+}
+
+// Method assumes that the two squares are on the same file, rank or diagonal.
+/*bool Position::FreeBetween(eSquares StartingSq, eSquares TargetSq)
+{
+
+}*/
+
 void Position::Init(std::string FEN)
 {
     int i = 0, j = 0, count = 0;
