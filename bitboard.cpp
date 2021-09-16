@@ -1,5 +1,6 @@
 #include "types.h"
 #include "magicmoves.h"
+#include <math.h>
 #include <iostream>
 
 
@@ -223,28 +224,34 @@ void Position::Init(std::string FEN)
     }
     }while(count < 2);
 
+    // Reading En Passant Square
     if(FEN[i] != '-')
     {
-        Rest |= (U64)((FEN[i] - 'a') * 8 + (FEN[i + 1] -'0')) << 5;
+        Rest |= (U64)((FEN[i] - 'a') + (FEN[i + 1] -'1')* 8)  << 5;
         i += 3;
     }
-
-    i += 2;
-
+    else i += 2;
+    
+    // Reading 50 move rule
+    std::cout << FEN[i] << FEN[i+1] << "\n";
     if(FEN[i + 1] != ' ')
     {
-        Rest |= (U64)((FEN[i + 1] -'0')*10 + (FEN[i + 1] -'0')) << 11;
+        Rest |= (U64)((FEN[i] -'0')*10 + (FEN[i + 1] -'0')) << 11;
         i += 3;
     }
-    else if (FEN[i] != '-')
-        Rest |= (U64)(FEN[i]) << 11;
     
-    i += 2;
+    else
+    {
+        Rest |= (U64)(FEN[i] - '0') << 11;
+        i += 2;
+    }
+    
 
+    // Reading move number
     U64 num = 0;
-
-    for(int j = FEN.length() - i; i < j; i++)
-        num += FEN[i]*(10 + j - i - 1);
+    for(int j = FEN.length(); i < j; i++)
+        num += (FEN[i] - '0')*(pow(10, j-i-1));
+    
     
     Rest |= num << 17;
 }

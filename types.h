@@ -104,5 +104,6 @@ public:
     void Move(eSquares StartingSq, eSquares TargetSq, ePieceType PieceType);
     bool IsLegal(eSquares StartingSq, eSquares TargetSq, ePieceType PieceType);
     void PrintBB(U64 bb);
+    U64 GetRest() {return Position::Rest;};
     
 };
