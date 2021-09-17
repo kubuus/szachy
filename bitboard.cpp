@@ -19,7 +19,7 @@ void Bitboards::Init()
         KingAttacks[i] |= ShiftNorth(KingAttacks[i] | sq(i)) | ShiftSouth(KingAttacks[i] | sq(i));
         
         KnightAttacks[i] = ShiftNW(ShiftWest(sq(i))) | ShiftSW(ShiftWest(sq(i))) | ShiftNE(ShiftEast(sq(i))) | ShiftSE(ShiftEast(sq(i))) |
-                           ShiftNW(ShiftNorth(sq(i))) | ShiftSW(ShiftNorth(sq(i))) | ShiftNE(ShiftSouth(sq(i))) | ShiftSE(ShiftSouth(sq(i)));
+                           ShiftNW(ShiftNorth(sq(i))) | ShiftSW(ShiftSouth(sq(i))) | ShiftNE(ShiftNorth(sq(i))) | ShiftSE(ShiftSouth(sq(i)));
     }
 }
 
@@ -233,7 +233,7 @@ void Position::Init(std::string FEN)
 
     default:
         std::cout << "Error while reading FEN, unexpected character!\n";
-        break;
+        return;
     }
     }while(count < 2);
 
@@ -246,7 +246,6 @@ void Position::Init(std::string FEN)
     else i += 2;
     
     // Reading 50 move rule
-    std::cout << FEN[i] << FEN[i+1] << "\n";
     if(FEN[i + 1] != ' ')
     {
         Rest |= (U64)((FEN[i] -'0')*10 + (FEN[i + 1] -'0')) << 11;
