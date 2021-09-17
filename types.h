@@ -10,12 +10,14 @@ int static PopCount(U64 bb) {return __builtin_popcountll(bb);}
 U64 static LS1B(U64 bb) {return bb & -bb;}
 
 
-enum eColour {White, Black, NC};
+enum eColour {White, Black, NC}; 
+eColour static InvertCol(eColour Col){return Col ? Col = White : Col = Black;}
+
 enum ePieceType {P, N, B, R, Q, K, NPT};
 enum ePiece {WP, WK, WQ, WN, WB, WR, BP, BK, BQ, BN, BB, BR, NP};
 enum eFiles {A_FILE, B_FILE, C_FILE, D_FILE, E_FILE, F_FILE, G_FILE, H_FILE};
 enum eRanks {RANK_1, RANK_2, RANK_3, RANK_4, RANK_5, RANK_6, RANK_7, RANK_8};
-enum eMoveType {STANDARD, K_CASTLE, Q_CASTLE, N_PROMOTION, B_PROMOTION, R_PROMOTION, Q_PROMOTION, NO_MT};
+enum eMoveType {QUIET, K_CASTLE, Q_CASTLE, N_PROMOTION, B_PROMOTION, R_PROMOTION, Q_PROMOTION, NO_MT};
 enum eSquares {
     a1, b1, c1, d1, e1, f1, g1, h1,
     a2, b2, c2, d2, e2, f2, g2, h2,
@@ -73,6 +75,19 @@ constexpr U64 ShiftSE(U64 b) {return ((b & (~H_FILE_BB)) >> 7);}
 
 constexpr U64 ShiftSideways(U64 b) {return ShiftWest(b) | ShiftEast(b);};
 
+class Move{
+public:
+    eSquares MoveFrom;
+    eSquares MoveTo;
+    eMoveType MoveType;
+    ePieceType PieceType;
+    eSquares EPsquare;
+
+    void Init(eSquares MF, eSquares MT, eMoveType MTP, ePieceType PT, eSquares EPS)
+    {MoveFrom = MF; MoveTo = MT; MoveType = MTP; PieceType = PT; EPsquare = EPS;};
+
+};
+
 class Bitboards{
 private:
     U64 PawnAttacks[2][64];
@@ -87,7 +102,6 @@ public:
     U64 GetBishopAttacks(eSquares sq, U64 occ);
     U64 GetQueenAttacks(eSquares sq, U64 occ);
     U64 GetKingAttacks(eSquares sq);
-    
 };
 
 class Position{
@@ -105,9 +119,11 @@ public:
     U64 GetPos(eColour Col, ePieceType PieceType);
     bool FreeBetween(eSquares StartingSq, eSquares TargetSq);
     U64 CastlingRights(int Col);
-    void Move(eSquares StartingSq, eSquares TargetSq, ePieceType PieceType);
-    bool IsLegal(eSquares StartingSq, eSquares TargetSq, ePieceType PieceType);
+    void MakeMove(Move Move);
+    bool IsLegal(Move Move);
     void PrintBB(U64 bb);
     U64 GetRest() {return Position::Rest;};
-    
+    bool AttackedSquare(eSquares Square, eColour Col);
 };
+
+
