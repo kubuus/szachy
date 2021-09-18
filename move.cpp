@@ -7,7 +7,8 @@ bool Position::IsLegal(Move Move)
 {
     Bitboards BB;
     BB.Init();
-    int Col = Rest & U64(1);
+    eColour Col = eColour(Rest & U64(1));
+    eColour oppCol = InvertCol(Col);
 
     if(!(Move.MoveFrom & Colour_BB[Col]) || !(Move.MoveFrom & Piece_BB[Move.PieceType]))
         return false;
@@ -17,24 +18,27 @@ bool Position::IsLegal(Move Move)
 
     if (Move.PieceType == K)
     {
+        if(AttackedSquare(Move.MoveTo, oppCol))
+            return false;
+
         if(!(BB.GetKingAttacks(Move.MoveFrom) & Move.MoveTo))
         {
-            
-            if(Move.MoveType > QUIET)
+               
+            if(Move.MoveType == K_CASTLE || Move.MoveType == Q_CASTLE)
             {
             int CR = CastlingRights(Col);
             if(CR == 0)
                 return false;
             
-            if((Move.MoveTo == g8 - (!Col * a8)) && (CR & (1)) && ((GetPos(NC, NPT) & (K_CASTLE_MASK << North * 7 * !Col)) == 0))
+            if((Move.MoveTo == g8 - (oppCol * a8)) && !(AttackedSquare(eSquares(g8 - (oppCol * a8)), oppCol)) && (CR & (1)) && ((GetPos(NC, NPT) & (K_CASTLE_MASK << North * 7 * Col)) == 0))
                 return true;
             
-            if((Move.MoveTo == c8 - (!Col * a8)) && (CR & (2)) && ((GetPos(NC, NPT) & (Q_CASTLE_MASK << North * 7 * !Col)) == 0))
+            if((Move.MoveTo == c8 - (oppCol * a8)) && !(AttackedSquare(eSquares(c8 - (oppCol * a8)), oppCol)) && (CR & (2)) && ((GetPos(NC, NPT) & (Q_CASTLE_MASK << North * 7 * Col)) == 0))
                 return true;
             }
             return false;
         }
-        
+        return true;
     }
 
     return true;
