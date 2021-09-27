@@ -1,12 +1,13 @@
 #include "types.h"
 
-// TODO: Create a method for checking if a square is attacked, then implement it
-//       for king moves. Implement moves of the rest of pieces.
+// TODO: Implement moves of the rest of pieces.
 
 
+// Method only changes bitboards getting the Move class 
+// This method DOES NOT check whether the move is legal
 void Position::MakeMove(Move MoveDo, Move *Undo)
 {
-    // Saving move data to undo move only if it's at NULL value to avoid repetition
+    // Saving undo data to only if it's at NULL value
     if(!Undo)
         Undo->Init(MoveDo.MoveTo, MoveDo.MoveFrom, UNDO, MoveDo.PieceType, n_sq);
 
@@ -18,6 +19,9 @@ void Position::MakeMove(Move MoveDo, Move *Undo)
         }
     Piece_BB[MoveDo.PieceType] ^= bb;
     Rest ^= U64(1);
+    Rest ^= U64(h8 << 5);
+    if(MoveDo.MoveType == DOUBLE_PAWN_PUSH)
+        Rest |= (U64)((MoveDo.MoveTo - 8)) << 5;
 }
 
 bool Position::IsLegal(Move MoveDo)
@@ -60,7 +64,7 @@ bool Position::IsLegal(Move MoveDo)
 
     Move *Undo = NULL;
     MakeMove(MoveDo, Undo);
-    
+
     if(AttackedSquare(eSquares(TrailingZeros(GetPos(Col, K))), oppCol))
     {
         MakeMove(*Undo, &MoveDo);
@@ -69,7 +73,13 @@ bool Position::IsLegal(Move MoveDo)
     
     MakeMove(*Undo, &MoveDo);
 
-    if(MoveDo.PieceType == P);
+    if(MoveDo.PieceType == P)
+    {
+        if(MoveDo.MoveType == DOUBLE_PAWN_PUSH)
+        {
+            if(1);
+        }
+    }
 
     return true;
 }
