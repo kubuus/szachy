@@ -11,7 +11,7 @@ U64 static LS1B(U64 bb) {return bb & -bb;}
 
 
 enum eColour {White, Black, NC}; 
-eColour static InvertCol(eColour Col){return Col ? Col = White : Col = Black;}
+inline eColour operator~(eColour Col) {return eColour(Col ^ Black);}; 
 
 enum ePieceType {P, N, B, R, Q, K, NPT};
 enum ePiece {WP, WK, WQ, WN, WB, WR, BP, BK, BQ, BN, BB, BR, NP};
