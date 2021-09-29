@@ -29,7 +29,7 @@ bool Position::IsLegal(Move MoveDo)
     Bitboards BB;
     BB.Init();
     eColour Col = eColour(Rest & U64(1));
-    eColour oppCol = InvertCol(Col);
+    eColour oppCol = ~Col;
 
     if(!(MoveDo.MoveFrom & Colour_BB[Col]) || !(MoveDo.MoveFrom & Piece_BB[MoveDo.PieceType]))
         return false;
