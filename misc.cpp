@@ -1,13 +1,13 @@
 #include "types.h"
 
-// Method checks whether a square is attacked in a given position. AtBy is the colour of the attacker!
+// Method checks whether a square is attacked in a given position. The colour is the colour of the attacker!
 bool Position::AttackedSquare(eSquares Sq, eColour AtBy)
 {
     U64 occ = GetPos(NC, NPT);
     Bitboards BB;
     BB.Init();
     
-    if(BB.GetPawnAttacks(Sq, InvertCol(AtBy)) & GetPos(AtBy, P)) return true;
+    if(BB.GetPawnAttacks(Sq, ~AtBy) & GetPos(AtBy, P)) return true;
 
     if(BB.GetKnightAttacks(Sq) & GetPos(AtBy, N)) return true;
     if(BB.GetKingAttacks(Sq)   & GetPos(AtBy, N)) return true;

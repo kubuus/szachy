@@ -77,7 +77,7 @@ U64 Position::GetPos(eColour Col, ePieceType PieceType)
 // 0 for none, 1 for kingside, 2 for queenside, 3 for both
 U64 Position::CastlingRights(int Col)
 {
-    return ((Rest << (1 + Col*2)) & U64(3));
+    return ((CastRights << (Col*2)) & U64(3));
 }
 
 void Position::Init(std::string FEN)
@@ -196,26 +196,27 @@ void Position::Init(std::string FEN)
     switch (FEN[i])
     {
     case 'w':
+        Turn = White;
         i++; break;
 
     case 'b':
-        Rest |= (U64)(1);
+        Turn = Black;
         i++; break;
 
     case 'K':
-        Rest |= (U64)(1) << 1;
+        CastRights |= 1;
         i++; break;
 
     case 'Q':
-        Rest |= (U64)(1) << 2;
+        CastRights |= 2;
         i++; break;
 
     case 'k':
-        Rest |= (U64)(1) << 3;
+        CastRights |= 4;
         i++; break;
 
     case 'q':
-        Rest |= (U64)(1) << 4;
+        CastRights |= 8;
         i++; break;
 
     case '-':
@@ -234,7 +235,7 @@ void Position::Init(std::string FEN)
     // Reading En Passant Square
     if(FEN[i] != '-')
     {
-        Rest |= (U64)((FEN[i] - 'a') + (FEN[i + 1] -'1')* 8)  << 5;
+        EPsq = (eSquares)((FEN[i] - 'a') + (FEN[i + 1] -'1')* 8);
         i += 3;
     }
     else i += 2;
@@ -242,13 +243,13 @@ void Position::Init(std::string FEN)
     // Reading 50 move rule
     if(FEN[i + 1] != ' ')
     {
-        Rest |= (U64)((FEN[i] -'0')*10 + (FEN[i + 1] -'0')) << 11;
+        ply = ((FEN[i] -'0')*10 + (FEN[i + 1] -'0'));
         i += 3;
     }
     
     else
     {
-        Rest |= (U64)(FEN[i] - '0') << 11;
+        ply = (U64)(FEN[i] - '0');
         i += 2;
     }
     
@@ -257,7 +258,5 @@ void Position::Init(std::string FEN)
     U64 num = 0;
     for(int j = FEN.length(); i < j; i++)
         num += (FEN[i] - '0')*(pow(10, j-i-1));
-    
-    
-    Rest |= num << 17;
+    move_no = num;
 }

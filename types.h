@@ -108,11 +108,11 @@ class Position{
 private:
     U64 Colour_BB[2] = {0, 0};
     U64 Piece_BB[6] = {0, 0, 0, 0, 0, 0};
-
-    U64 Rest = 0;   // Castling rights, EP square, 50-move rule, whose turn it is and move no.
-                    // First bit is turn, 0 for white 1 for black, next four are for castling
-                    // rights, KQkq like in FEN, next six for En Passant square, next 6 for 
-                    // 50 move rule and the rest for move number.
+    eColour Turn = NC;               
+    U64 CastRights = 0;         // Castling rights for both sides
+    eSquares EPsq = n_sq;       // En Passant squae
+    int ply = 0;                // 50 move rule
+    int move_no = 0;            // Move number
 
 public:
     void Init(std::string FEN);
@@ -122,7 +122,6 @@ public:
     void MakeMove(Move Movedo, Move *Undo);
     bool IsLegal(Move Move);
     void PrintBB(U64 bb);
-    U64 GetRest() {return Position::Rest;};
     bool AttackedSquare(eSquares Square, eColour Col);
 };
 
