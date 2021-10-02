@@ -9,7 +9,7 @@ void Position::MakeMove(Move MoveDo, Move *Undo)
 {
     // Saving undo data to only if it's at NULL value
     if(!Undo)
-        Undo->Init(MoveDo.MoveTo, MoveDo.MoveFrom, UNDO, MoveDo.PieceType, n_sq);
+        Undo->Init(MoveDo.MoveTo, MoveDo.MoveFrom, QUIET, MoveDo.PieceType, n_sq);
 
     U64 bb = sq((U64)(MoveDo.MoveFrom)) | (sq((U64)(MoveDo.MoveTo)));
     Colour_BB[Turn] ^= bb;
@@ -26,13 +26,10 @@ void Position::MakeMove(Move MoveDo, Move *Undo)
 
 bool Position::IsLegal(Move MoveDo)
 {
-    Bitboards BB;
-    BB.Init();
-
     if(!(MoveDo.MoveFrom & Colour_BB[Turn]) || !(MoveDo.MoveFrom & Piece_BB[MoveDo.PieceType]))
         return false;
     
-    if(MoveDo.MoveTo & Colour_BB[Turn])
+    if((MoveDo.MoveTo & Colour_BB[Turn]) || !(MoveDo.MoveTo & BB_Misc.GetAttacks(MoveDo.PieceType, MoveDo.MoveFrom, Colour_BB[NC], Turn)))
         return false;
     
     Move *Undo = NULL;
@@ -48,14 +45,56 @@ bool Position::IsLegal(Move MoveDo)
 
     switch(MoveDo.MoveType)
     {
+        case(QUIET):
+            return true;
         case(DOUBLE_PAWN_PUSH):
+
+            if(MoveDo.PieceType != P)
+                return false;
+            
+            if(Turn == White)
+                if(!(MoveDo.MoveFrom & RANK_2_BB) || (ShiftNorth(MoveDo.MoveFrom) & Colour_BB[NC]))
+                    return false;
+
+            if(Turn == Black)
+                if(!(MoveDo.MoveFrom & RANK_7_BB) || (ShiftSouth(MoveDo.MoveFrom) & Colour_BB[NC]))
+                    return false;
+
             return true;
-        case(EN_PASSANT_CAPTURE):
-            return true;
+
         case(K_CASTLE):
+
+            if((MoveDo.PieceType != K) || !(CastlingRights(Turn) & 1))
+                return false;
+            
+            if(Turn == White)
+                if(Colour_BB[NC] & K_CASTLE_MASK)
+                    return false;
+                else return true;
+                
+            if(Turn == Black)
+                if(Colour_BB[NC] & (K_CASTLE_MASK) << 56)
+                    return false;
+                else return true;
+            
             return true;
+
         case(Q_CASTLE):
+
+            if((MoveDo.PieceType != K) || !(CastlingRights(Turn) & 2))
+                return false;
+            
+            if(Turn == White)
+                if(Colour_BB[NC] & Q_CASTLE_MASK)
+                    return false;
+                else return true;
+                
+            if(Turn == Black)
+                if(Colour_BB[NC] & (Q_CASTLE_MASK) << 56)
+                    return false;
+                else return true;
             return true;
+        
         default:
             return true;
     };
