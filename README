@@ -1,1 +1,13 @@
-Szachy
+The Untitled General Chess Project
+
+The current goal is to implement a working chess board which can accurately play chess and determine the legality of moves.
+
+TODO list:
+    1. Implement a proper moving function.
+    2. A way of determining if someone is in check, checkmate, stalemate.
+    3. System to interact with the program (probably by standard chess notation parser or something like that).
+
+This project might seem convoluted and overenginnered, but this is because I may later repurpose it to be a chess engine,
+and also because I've read an innapropriate amount of chessprogramming.org.
+
+Cheers!
