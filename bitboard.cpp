@@ -53,6 +53,34 @@ U64 Bitboards::GetQueenAttacks(eSquares sq, U64 occ)
     return Rmagic(sq, occ) | Bmagic(sq, occ);
 }
 
+U64 Bitboards::GetAttacks(ePieceType piece, eSquares sq, U64 occ, eColour col)
+{
+    switch (piece)
+    {
+    case P:
+        return GetPawnAttacks(sq, col);
+    
+    case N:
+        return GetKnightAttacks(sq);
+    
+    case B:
+        return GetBishopAttacks(sq, occ);
+    
+    case R:
+        return GetRookAttacks(sq, occ);
+    
+    case Q:
+        return GetQueenAttacks(sq, occ);
+    
+    case K:
+        return GetKingAttacks(sq);
+
+    default:
+        break;
+    }
+    return 0;
+}
+
 void Position::PrintBB(U64 bb)
 {
     for (int j = 0; j < 8; j++)
