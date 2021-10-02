@@ -112,7 +112,7 @@ class Position{
 private:
     U64 Colour_BB[2] = {0, 0};
     U64 Piece_BB[6] = {0, 0, 0, 0, 0, 0};
-    std::array<ePiece, 64> PieceList;
+    
     eColour Turn = NC;               
     U64 CastRights = 0;         // Castling rights for both sides
     eSquares EPsq = n_sq;       // En Passant squae
@@ -128,6 +128,7 @@ public:
     bool IsLegal(Move Move);
     void PrintBB(U64 bb);
     bool AttackedSquare(eSquares Square, eColour Col);
+    std::array<ePiece, 64> PieceList;
 };
 
 
