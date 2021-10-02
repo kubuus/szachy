@@ -110,6 +110,7 @@ U64 Position::CastlingRights(int Col)
 
 void Position::Init(std::string FEN)
 {
+    PieceList.fill(no_Piece);
     int i = 0, j = 0, count = 0;
     do {
     switch (FEN[i])
@@ -117,61 +118,73 @@ void Position::Init(std::string FEN)
     case 'p':
         Colour_BB[1] |= (sq(a8 + (j % 8) - (count * 8)));
         Piece_BB[P] |= (sq(a8 + (j++ % 8) - (count * 8)));
+        PieceList[a8 + (j % 8) - (count * 8)] = bP;
         i++; break;
 
     case 'P':
         Colour_BB[0] |= (sq(a8 + (j % 8) - (count * 8)));
         Piece_BB[P] |= (sq(a8 + (j++ % 8) - (count * 8)));
+        PieceList[a8 + (j % 8) - (count * 8)] = wP;
         i++; break;
 
     case 'b':
         Colour_BB[1] |= (sq(a8 + (j % 8) - (count * 8)));
         Piece_BB[B] |= (sq(a8 + (j++ % 8) - (count * 8)));
+        PieceList[a8 + (j % 8) - (count * 8)] = bB;
         i++; break;
 
     case 'B':
         Colour_BB[0] |= (sq(a8 + (j % 8) - (count * 8)));
         Piece_BB[B] |= (sq(a8 + (j++ % 8) - (count * 8)));
+        PieceList[a8 + (j % 8) - (count * 8)] = wB;
         i++; break;
 
     case 'n':
         Colour_BB[1] |= (sq(a8 + (j % 8) - (count * 8)));
         Piece_BB[N] |= (sq(a8 + (j++ % 8) - (count * 8)));
+        PieceList[a8 + (j % 8) - (count * 8)] = bN;
         i++; break;
 
     case 'N':
         Colour_BB[0] |= (sq(a8 + (j % 8) - (count * 8)));
         Piece_BB[N] |= (sq(a8 + (j++ % 8) - (count * 8)));
+        PieceList[a8 + (j % 8) - (count * 8)] = wN;
         i++; break;
 
     case 'r':
         Colour_BB[1] |= (sq(a8 + (j % 8) - (count * 8)));
         Piece_BB[R] |= (sq(a8 + (j++ % 8) - (count * 8)));
+        PieceList[a8 + (j % 8) - (count * 8)] = bR;
         i++; break;
 
     case 'R':
         Colour_BB[0] |= (sq(a8 + (j % 8) - (count * 8)));
         Piece_BB[R] |= (sq(a8 + (j++ % 8) - (count * 8)));
+        PieceList[a8 + (j % 8) - (count * 8)] = wR;
         i++; break;
         
     case 'q':
         Colour_BB[1] |= (sq(a8 + (j % 8) - (count * 8)));
         Piece_BB[Q] |= (sq(a8 + (j++ % 8) - (count * 8)));
+        PieceList[a8 + (j % 8) - (count * 8)] = bQ;
         i++; break;
 
     case 'Q':
         Colour_BB[0] |= (sq(a8 + (j % 8) - (count * 8)));
         Piece_BB[Q] |= (sq(a8 + (j++ % 8) - (count * 8)));
+        PieceList[a8 + (j % 8) - (count * 8)] = wQ;
         i++; break;
 
     case 'k':
         Colour_BB[1] |= (sq(a8 + (j % 8) - (count * 8)));
         Piece_BB[K] |= (sq(a8 + (j++ % 8) - (count * 8)));
+        PieceList[a8 + (j % 8) - (count * 8)] = bK;
         i++; break; 
 
     case 'K':
         Colour_BB[0] |= (sq(a8 + (j % 8) - (count * 8)));
         Piece_BB[K] |= (sq(a8 + (j++ % 8) - (count * 8)));
+        PieceList[a8 + (j % 8) - (count * 8)] = wK;
         i++; break;
         
     case '1':
