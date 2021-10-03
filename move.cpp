@@ -5,11 +5,11 @@
 
 // Method only changes bitboards getting the Move class 
 // This method DOES NOT check whether the move is legal
-void Position::MakeMove(Move MoveDo, Move *Undo)
+void Position::MakeMove(Move MoveDo)
 {
     // Saving undo data only if it's at NULL value
     if(!Undo)
-        Undo->Init(MoveDo.MoveTo, MoveDo.MoveFrom, MoveDo.MoveType, MoveDo.PieceType, EPsq);
+        Undo->Init(MoveDo.MoveTo, MoveDo.MoveFrom, MoveDo.MoveType, MoveDo.PieceType, EPsq, CastRights);
 
     U64 bb = sq(MoveDo.MoveFrom) | (sq(MoveDo.MoveTo));
 
@@ -107,6 +107,11 @@ void Position::MakeMove(Move MoveDo, Move *Undo)
 
     if(MoveDo.MoveType == DOUBLE_PAWN_PUSH)
         EPsq = eSquares(MoveDo.MoveTo + South);
+}
+
+void Position::UndoMove(UNDO MoveUndo)
+{
+    
 }
 
 bool Position::IsLegal(Move MoveDo)

@@ -19,7 +19,7 @@ bool Position::AttackedSquare(eSquares Sq, eColour AtBy)
 }
 
 // Imported from https://www.chessprogramming.org/Square_Attacked_By
-U64 inBetween(eSquares sq1, eSquares sq2) {
+U64 Position::InBetween(eSquares sq1, eSquares sq2) {
    const U64 m1   = U64(-1);
    const U64 a2a7 = U64(0x0001010101010100);
    const U64 b2g7 = U64(0x0040201008040200);

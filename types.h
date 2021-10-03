@@ -108,26 +108,49 @@ public:
 
 extern Bitboards BB_Misc;
 
+typedef struct UNDO
+{
+    eSquares MoveTo;
+    eSquares MoveFrom;
+    eMoveType MoveType;
+    ePieceType PieceType;
+    eSquares EPsquare;
+    int CastRights;
+    typedef struct UNDO *UndoNext;
+
+    void Init(eSquares MF, eSquares MT, eMoveType MTP, ePieceType PT, eSquares EPS, int CR)
+    {MoveFrom = MF; MoveTo = MT; MoveType = MTP; PieceType = PT; EPsquare = EPS; CastRights = CR;};
+
+}UNDO;
+
+
 class Position{
 private:
     U64 Colour_BB[2] = {0, 0};
     U64 Piece_BB[6] = {0, 0, 0, 0, 0, 0};
     
+    UNDO *Undo = NULL;
+
     eColour Turn = NC;               
-    U64 CastRights = 0;         // Castling rights for both sides
+    int CastRights = 0;         // Castling rights for both sides
     eSquares EPsq = n_sq;       // En Passant squae
     int ply = 0;                // 50 move rule
     int move_no = 0;            // Move number
 
 public:
     void Init(std::string FEN);
+
     U64 GetPos(eColour Col, ePieceType PieceType);
-    bool FreeBetween(eSquares StartingSq, eSquares TargetSq);
-    U64 CastlingRights(int Col);
-    void MakeMove(Move Movedo, Move *Undo);
+    U64 InBetween(eSquares StartingSq, eSquares TargetSq);
+    
+    void MakeMove(Move Movedo);
+    void UndoMove(UNDO MoveUndo);
     bool IsLegal(Move Move);
+
     void PrintBB(U64 bb);
     bool AttackedSquare(eSquares Square, eColour Col);
+    U64 CastlingRights(int Col);
+
     std::array<ePiece, 64> PieceList;
     void UpdatePieceList(eSquares StartingSq, eSquares TargetSq, ePiece Piece);
 };
