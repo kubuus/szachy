@@ -129,6 +129,7 @@ public:
     void PrintBB(U64 bb);
     bool AttackedSquare(eSquares Square, eColour Col);
     std::array<ePiece, 64> PieceList;
+    void UpdatePieceList(eSquares StartingSq, eSquares TargetSq, ePiece Piece);
 };
 
 

@@ -105,7 +105,7 @@ U64 Position::GetPos(eColour Col, ePieceType PieceType)
 // 0 for none, 1 for kingside, 2 for queenside, 3 for both
 U64 Position::CastlingRights(int Col)
 {
-    return ((CastRights << (Col*2)) & U64(3));
+    return ((CastRights >> (Col*2)) & U64(3));
 }
 
 void Position::Init(std::string FEN)

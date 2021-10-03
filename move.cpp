@@ -9,17 +9,80 @@ void Position::MakeMove(Move MoveDo, Move *Undo)
 {
     // Saving undo data only if it's at NULL value
     if(!Undo)
-        Undo->Init(MoveDo.MoveTo, MoveDo.MoveFrom, QUIET, MoveDo.PieceType, EPsq);
+        Undo->Init(MoveDo.MoveTo, MoveDo.MoveFrom, MoveDo.MoveType, MoveDo.PieceType, EPsq);
 
     U64 bb = sq(MoveDo.MoveFrom) | (sq(MoveDo.MoveTo));
+
+    if(MoveDo.MoveType == K_CASTLE)
+    {
+        Colour_BB[Turn] ^= bb | ShiftEast(bb);
+        Piece_BB[K] ^= bb;
+        Piece_BB[R] ^= ShiftEast(bb);
+        UpdatePieceList(MoveDo.MoveFrom, MoveDo.MoveTo, PieceList[MoveDo.MoveFrom]);
+        UpdatePieceList(eSquares(MoveDo.MoveFrom + b1), eSquares(MoveDo.MoveTo + b1), PieceList[MoveDo.MoveFrom + b1]);
+        CastRights ^= (CastRights & (3 << (Turn * 2)));
+    }
+        
+    else if(MoveDo.MoveType == Q_CASTLE)
+    {
+        Colour_BB[Turn] ^= bb | ((sq(d1) | sq(h1)) << (56 * Turn));
+        Piece_BB[K] ^= bb;
+        Piece_BB[R] ^= (sq(d1) | sq(h1)) << (56 * Turn);
+        UpdatePieceList(MoveDo.MoveFrom, MoveDo.MoveTo, ePiece(wK + Turn * 6));
+        UpdatePieceList(eSquares(MoveDo.MoveFrom - b1), eSquares(MoveDo.MoveTo - b1), ePiece(wR + Turn * 6));
+        CastRights ^= (CastRights & (3 << (Turn * 2)));
+    }
+
+    else if(MoveDo.MoveType > Q_CASTLE)
+    {
+        Colour_BB[Turn] ^= bb;
+        if(Colour_BB[~Turn] & sq(MoveDo.MoveTo))
+        {
+            Piece_BB[PieceList[MoveDo.MoveTo] % 6] ^= sq(MoveDo.MoveTo);
+            Colour_BB[~Turn] ^= sq(MoveDo.MoveTo);
+        }
+        switch (MoveDo.MoveType)
+        {
+        case N_PROMOTION:
+            Piece_BB[P] ^= MoveDo.MoveFrom;
+            Piece_BB[N] ^= MoveDo.MoveTo;
+            UpdatePieceList(MoveDo.MoveFrom, MoveDo.MoveTo, ePiece(wN + Turn * 6));
+            break;
+        case R_PROMOTION:
+            Piece_BB[P] ^= MoveDo.MoveFrom;
+            Piece_BB[R] ^= MoveDo.MoveTo;
+            UpdatePieceList(MoveDo.MoveFrom, MoveDo.MoveTo, ePiece(wR + Turn * 6));
+            break;
+        case B_PROMOTION:
+            Piece_BB[P] ^= MoveDo.MoveFrom;
+            Piece_BB[B] ^= MoveDo.MoveTo;
+            UpdatePieceList(MoveDo.MoveFrom, MoveDo.MoveTo, ePiece(wB + Turn * 6));
+            break;
+        case Q_PROMOTION:
+            Piece_BB[P] ^= MoveDo.MoveFrom;
+            Piece_BB[Q] ^= MoveDo.MoveTo;
+            UpdatePieceList(MoveDo.MoveFrom, MoveDo.MoveTo, ePiece(wQ + Turn * 6));
+            break;
+        
+        default:
+            printf("What");
+            return;
+        }
+    }
+
+    else {
     Colour_BB[Turn] ^= bb;
     Piece_BB[MoveDo.PieceType] ^= bb;
 
     if(Colour_BB[~Turn] & sq(MoveDo.MoveTo))
     {
-        Piece_BB[PieceList[MoveDo.MoveTo] - 6] ^= sq(MoveDo.MoveTo);
+        Piece_BB[PieceList[MoveDo.MoveTo] % 6] ^= sq(MoveDo.MoveTo);
         Colour_BB[~Turn] ^= sq(MoveDo.MoveTo);
     }
+
+    UpdatePieceList(MoveDo.MoveFrom, MoveDo.MoveTo, PieceList[MoveDo.MoveFrom]);
+    }
+
     if(CastlingRights(Turn) != 0)
     {
         if(MoveDo.PieceType == K)
@@ -43,7 +106,7 @@ void Position::MakeMove(Move MoveDo, Move *Undo)
     EPsq = n_sq;
 
     if(MoveDo.MoveType == DOUBLE_PAWN_PUSH)
-        EPsq = eSquares(MoveDo.MoveTo - a2);
+        EPsq = eSquares(MoveDo.MoveTo + South);
 }
 
 bool Position::IsLegal(Move MoveDo)

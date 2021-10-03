@@ -36,3 +36,9 @@ U64 inBetween(eSquares sq1, eSquares sq2) {
    line *= btwn & -btwn; /* mul acts like shift by smaller square */
    return line & btwn;   /* return the bits on that line in-between */
 }
+
+void Position::UpdatePieceList(eSquares StartingSq, eSquares TargetSq, ePiece Piece)
+{
+    PieceList[StartingSq] = no_Piece;
+    PieceList[TargetSq] = Piece;
+} 
