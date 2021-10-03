@@ -111,6 +111,7 @@ U64 Position::CastlingRights(int Col)
 void Position::Init(std::string FEN)
 {
     PieceList.fill(no_Piece);
+    
     int i = 0, j = 0, count = 0;
     do {
     switch (FEN[i])
@@ -300,4 +301,6 @@ void Position::Init(std::string FEN)
     for(int j = FEN.length(); i < j; i++)
         num += (FEN[i] - '0')*(pow(10, j-i-1));
     move_no = num;
+
+    InitHashKey();
 }

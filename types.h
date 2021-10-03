@@ -128,6 +128,10 @@ class Position{
 private:
     U64 Colour_BB[2] = {0, 0};
     U64 Piece_BB[6] = {0, 0, 0, 0, 0, 0};
+    U64 ZobPieces[12][64];
+    U64 ZobCR[16];
+    U64 ZobEPsq[8];
+    U64 HashKey;
     
     UNDO *Undo = NULL;
 
@@ -139,6 +143,7 @@ private:
 
 public:
     void Init(std::string FEN);
+    void InitHashKey();
 
     U64 GetPos(eColour Col, ePieceType PieceType);
     U64 InBetween(eSquares StartingSq, eSquares TargetSq);

@@ -1,4 +1,13 @@
 #include "types.h"
+#include <random>
+
+std::mt19937_64 random(2137);
+std::uniform_int_distribution<U64> dist(pow(2, 55), pow(2, 62));
+
+U64 random64()
+{
+    dist(random);
+}
 
 // Method checks whether a square is attacked in a given position. The colour is the colour of the attacker!
 bool Position::AttackedSquare(eSquares Sq, eColour AtBy)
@@ -41,4 +50,33 @@ void Position::UpdatePieceList(eSquares StartingSq, eSquares TargetSq, ePiece Pi
 {
     PieceList[StartingSq] = no_Piece;
     PieceList[TargetSq] = Piece;
-} 
+}
+
+void Position::InitHashKey()
+{
+    HashKey = 0;
+    for (int i = 0; i < 12; i++)
+        for (int j = 0; j < 64; i++)
+            ZobPieces[i][j] = random64(); 
+
+    for (int i = 0; i < 16; i++)
+        ZobCR[i] = random64();
+    
+    for (int i = 0; i < 8; i++)
+        ZobEPsq[i] = random64();
+
+    for(int i = 0; i < 64; i++)
+    {
+        if(PieceList[i] != no_Piece)
+            HashKey ^= ZobPieces[PieceList[i]][i];
+    }
+
+    HashKey ^= ZobCR[CastRights];
+    
+    if(EPsq != n_sq)
+        HashKey ^= ZobEPsq[EPsq % 8]; 
+    
+    if(Turn == Black)
+        HashKey ^= ~U64(0);
+
+}
