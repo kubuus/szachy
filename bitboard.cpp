@@ -15,6 +15,15 @@ void Bitboards::Init()
         PawnAttacks[0][i] = ShiftNE(sq(i)) | ShiftNW(sq(i));
         PawnAttacks[1][i] = ShiftSE(sq(i)) | ShiftSW(sq(i));
 
+        if(i % 8 != RANK_2)
+            PawnMoves[0][i] = ShiftNorth(sq(i));
+        else
+            PawnMoves[0][i] = ShiftNorth(sq(i)) | sq(i+2*North);
+        if(i % 8 != RANK_7)
+            PawnMoves[1][i] = ShiftSouth(sq(i));
+        else
+            PawnMoves[1][i] = ShiftSouth(sq(i)) | sq(i + 2 * South);
+
         KingAttacks[i] = ShiftSideways(sq(i));
         KingAttacks[i] |= ShiftNorth(KingAttacks[i] | sq(i)) | ShiftSouth(KingAttacks[i] | sq(i));
         
@@ -26,6 +35,11 @@ void Bitboards::Init()
 U64 Bitboards::GetPawnAttacks(eSquares sq, eColour col)
 {
     return PawnAttacks[col][sq];
+}
+
+U64 Bitboards::GetPawnMoves(eSquares sq, eColour col, U64 occ)
+{
+    return PawnMoves[col][sq] & (~occ);
 }
 
 U64 Bitboards::GetKnightAttacks(eSquares sq)
@@ -58,7 +72,7 @@ U64 Bitboards::GetAttacks(ePieceType piece, eSquares sq, U64 occ, eColour col)
     switch (piece)
     {
     case P:
-        return GetPawnAttacks(sq, col);
+        return GetPawnAttacks(sq, col) | GetPawnMoves(sq, col);
     
     case N:
         return GetKnightAttacks(sq);

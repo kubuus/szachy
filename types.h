@@ -6,8 +6,24 @@ using U64 = uint64_t;
 
 #define sq(x)  (U64(1) << (x))
 
-int static TrailingZeros(U64 n) {return __builtin_ctzll(n);}
-int static PopCount(U64 bb) {return __builtin_popcountll(bb);}
+int static TrailingZeros(U64 n) {
+#if defined (__GNUC__)
+    return __builtin_ctzll(n);
+#endif
+#if defined(_MSC_VER)
+    //#include <intrin.h>
+    return __lzcnt64(n);
+#endif
+}
+int static PopCount(U64 bb) {
+#if defined (__GNUC__)
+    return __builtin_popcountll(bb);
+#endif
+#if defined(_MSC_VER)
+    //#include <intrin.h>
+    return __popcnt64(bb);
+#endif
+}
 U64 static LS1B(U64 bb) {return bb & -bb;}
 
 
@@ -92,12 +108,14 @@ public:
 class Bitboards{
 private:
     U64 PawnAttacks[2][64];
+    U64 PawnMoves[2][64];
     U64 KingAttacks[64];
     U64 KnightAttacks[64];
 
 public:
     void Init();
     U64 GetPawnAttacks(eSquares sq, eColour col);
+    U64 GetPawnMoves(eSquares sq, eColour col, U64 occ);
     U64 GetKnightAttacks(eSquares sq);
     U64 GetRookAttacks(eSquares sq, U64 occ);
     U64 GetBishopAttacks(eSquares sq, U64 occ);

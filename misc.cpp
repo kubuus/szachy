@@ -1,28 +1,27 @@
 #include "types.h"
 #include <random>
+#include <math.h>
 
 std::mt19937_64 random(2137);
-std::uniform_int_distribution<U64> dist(pow(2, 55), pow(2, 62));
+std::uniform_int_distribution<U64> dist(std::llround(std::pow(2, 56)), std::llround(std::pow(2, 62)));
 
 U64 random64()
 {
-    dist(random);
+    return dist(random);
 }
 
 // Method checks whether a square is attacked in a given position. The colour is the colour of the attacker!
 bool Position::AttackedSquare(eSquares Sq, eColour AtBy)
 {
     U64 occ = GetPos(NC, NPT);
-    Bitboards BB;
-    BB.Init();
     
-    if(BB.GetPawnAttacks(Sq, ~AtBy) & GetPos(AtBy, P)) return true;
+    if(BB_Misc.GetPawnAttacks(Sq, ~AtBy) & GetPos(AtBy, P)) return true;
 
-    if(BB.GetKnightAttacks(Sq) & GetPos(AtBy, N)) return true;
-    if(BB.GetKingAttacks(Sq)   & GetPos(AtBy, N)) return true;
+    if(BB_Misc.GetKnightAttacks(Sq) & GetPos(AtBy, N)) return true;
+    if(BB_Misc.GetKingAttacks(Sq)   & GetPos(AtBy, N)) return true;
     
-    if(BB.GetRookAttacks(Sq, occ)   & (GetPos(AtBy, R) | GetPos(AtBy, Q))) return true;
-    if(BB.GetBishopAttacks(Sq, occ) & (GetPos(AtBy, B) | GetPos(AtBy, Q))) return true;
+    if(BB_Misc.GetRookAttacks(Sq, occ)   & (GetPos(AtBy, R) | GetPos(AtBy, Q))) return true;
+    if(BB_Misc.GetBishopAttacks(Sq, occ) & (GetPos(AtBy, B) | GetPos(AtBy, Q))) return true;
 
     return false;
 }
@@ -56,7 +55,7 @@ void Position::InitHashKey()
 {
     HashKey = 0;
     for (int i = 0; i < 12; i++)
-        for (int j = 0; j < 64; i++)
+        for (int j = 0; j < 64; j++)
             ZobPieces[i][j] = random64(); 
 
     for (int i = 0; i < 16; i++)

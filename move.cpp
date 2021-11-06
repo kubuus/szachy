@@ -19,7 +19,7 @@ void Position::MakeMove(Move MoveDo)
         Piece_BB[K] ^= bb;
         Piece_BB[R] ^= ShiftEast(bb);
         UpdatePieceList(MoveDo.MoveFrom, MoveDo.MoveTo, PieceList[MoveDo.MoveFrom]);
-        UpdatePieceList(eSquares(MoveDo.MoveFrom + b1), eSquares(MoveDo.MoveTo + b1), PieceList[MoveDo.MoveFrom + b1]);
+        UpdatePieceList(eSquares(MoveDo.MoveFrom + b1), eSquares(MoveDo.MoveTo - b1), PieceList[MoveDo.MoveTo + b1]);
         CastRights ^= (CastRights & (3 << (Turn * 2)));
     }
         
@@ -29,7 +29,7 @@ void Position::MakeMove(Move MoveDo)
         Piece_BB[K] ^= bb;
         Piece_BB[R] ^= (sq(d1) | sq(h1)) << (56 * Turn);
         UpdatePieceList(MoveDo.MoveFrom, MoveDo.MoveTo, ePiece(wK + Turn * 6));
-        UpdatePieceList(eSquares(MoveDo.MoveFrom - b1), eSquares(MoveDo.MoveTo - b1), ePiece(wR + Turn * 6));
+        UpdatePieceList(eSquares(MoveDo.MoveFrom - b1), eSquares(MoveDo.MoveTo + b1), ePiece(wR + Turn * 6));
         CastRights ^= (CastRights & (3 << (Turn * 2)));
     }
 
@@ -70,10 +70,29 @@ void Position::MakeMove(Move MoveDo)
         }
     }
 
+    
+
+
     else {
     Colour_BB[Turn] ^= bb;
     Piece_BB[MoveDo.PieceType] ^= bb;
-
+    if(MoveDo.MoveType == EN_PASSANT_CAPTURE)
+    {
+        if(Turn == White)
+        { 
+            Piece_BB[P] ^= sq(MoveDo.MoveTo + South);
+            Colour_BB[~Turn] ^= sq(MoveDo.MoveTo + South);
+            PieceList[MoveDo.MoveTo + South] == no_Piece;
+        }
+            
+        else
+        {
+            Piece_BB[P] ^= sq(MoveDo.MoveTo + North);
+            Colour_BB[~Turn] ^= sq(MoveDo.MoveTo + North);
+            PieceList[MoveDo.MoveTo + North] == no_Piece;
+        }
+            
+    }
     if(Colour_BB[~Turn] & sq(MoveDo.MoveTo))
     {
         Piece_BB[PieceList[MoveDo.MoveTo] % 6] ^= sq(MoveDo.MoveTo);
@@ -114,12 +133,14 @@ void Position::UndoMove(UNDO MoveUndo)
     
 }
 
+// Method for checking legality of moves.
+// Works for any move, even not generated inside the program.
 bool Position::IsLegal(Move MoveDo)
 {
     if(!(MoveDo.MoveFrom & Colour_BB[Turn]) || !(MoveDo.MoveFrom & Piece_BB[MoveDo.PieceType]))
         return false;
     
-    if((MoveDo.MoveTo & Colour_BB[Turn]) || !(MoveDo.MoveTo & BB_Misc.GetAttacks(MoveDo.PieceType, MoveDo.MoveFrom, Colour_BB[NC], Turn)))
+    if((MoveDo.MoveTo & Colour_BB[Turn]) || !(MoveDo.MoveTo & BB_Misc.GetAttacks(MoveDo.PieceType, MoveDo.MoveFrom, GetPos(NC, NPT), Turn)))
         return false;
     
     if(MoveDo.PieceType == K && AttackedSquare(MoveDo.MoveTo, ~Turn))
@@ -142,19 +163,22 @@ bool Position::IsLegal(Move MoveDo)
         case(QUIET):
             return true;
         case(DOUBLE_PAWN_PUSH):
-
             if(MoveDo.PieceType != P)
                 return false;
             
             if(Turn == White)
-                if(!(MoveDo.MoveFrom & RANK_2_BB) || (ShiftNorth(MoveDo.MoveFrom) & Colour_BB[NC]))
+                if(!(MoveDo.MoveFrom & RANK_2_BB) || (ShiftNorth(MoveDo.MoveFrom) & GetPos(NC, NPT)))
                     return false;
 
             if(Turn == Black)
-                if(!(MoveDo.MoveFrom & RANK_7_BB) || (ShiftSouth(MoveDo.MoveFrom) & Colour_BB[NC]))
+                if(!(MoveDo.MoveFrom & RANK_7_BB) || (ShiftSouth(MoveDo.MoveFrom) & GetPos(NC, NPT)))
                     return false;
 
             return true;
+
+        case(EN_PASSANT_CAPTURE):
+            if(MoveDo.PieceType != P || EPsq != MoveDo.MoveTo)
+                return false;
 
         case(K_CASTLE):
 
@@ -162,12 +186,12 @@ bool Position::IsLegal(Move MoveDo)
                 return false;
             
             if(Turn == White)
-                if(Colour_BB[NC] & K_CASTLE_MASK)
+                if(GetPos(NC, NPT) & K_CASTLE_MASK)
                     return false;
                 else return true;
                 
             if(Turn == Black)
-                if(Colour_BB[NC] & (K_CASTLE_MASK) << 56)
+                if(GetPos(NC, NPT) & (K_CASTLE_MASK) << 56)
                     return false;
                 else return true;
             
@@ -179,12 +203,12 @@ bool Position::IsLegal(Move MoveDo)
                 return false;
             
             if(Turn == White)
-                if(Colour_BB[NC] & Q_CASTLE_MASK)
+                if(GetPos(NC, NPT) & Q_CASTLE_MASK)
                     return false;
                 else return true;
                 
             if(Turn == Black)
-                if(Colour_BB[NC] & (Q_CASTLE_MASK) << 56)
+                if(GetPos(NC, NPT) & (Q_CASTLE_MASK) << 56)
                     return false;
                 else return true;
             return true;
