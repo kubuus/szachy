@@ -4,7 +4,7 @@ The current goal is to implement a working chess board which can accurately play
 
 TODO list:
     1. Implement a proper moving function.
-    2. A way of determining if someone is in check, checkmate, stalemate.
+    2. Zobrist Hashing.
     3. System to interact with the program (probably by standard chess notation parser or something like that).
 
 This project might seem convoluted and overenginnered, but this is because I may later repurpose it to be a chess engine,
