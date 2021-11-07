@@ -7,9 +7,7 @@
 // This method DOES NOT check whether the move is legal
 void Position::MakeMove(Move MoveDo)
 {
-    // Saving undo data only if it's at NULL value
-    if(!Undo)
-        Undo->Init(MoveDo.MoveTo, MoveDo.MoveFrom, MoveDo.MoveType, MoveDo.PieceType, EPsq, CastRights);
+    Undo->Init(MoveDo.MoveTo, MoveDo.MoveFrom, MoveDo.MoveType, MoveDo.PieceType, EPsq, CastRights);
 
     U64 bb = sq(MoveDo.MoveFrom) | (sq(MoveDo.MoveTo));
 
@@ -18,9 +16,13 @@ void Position::MakeMove(Move MoveDo)
         Colour_BB[Turn] ^= bb | ShiftEast(bb);
         Piece_BB[K] ^= bb;
         Piece_BB[R] ^= ShiftEast(bb);
+        UpdateHashKey(MoveDo.MoveFrom, MoveDo.MoveTo);
+        UpdateHashKey(eSquares(MoveDo.MoveTo + East), eSquares(MoveDo.MoveFrom + East));
         UpdatePieceList(MoveDo.MoveFrom, MoveDo.MoveTo, PieceList[MoveDo.MoveFrom]);
-        UpdatePieceList(eSquares(MoveDo.MoveFrom + b1), eSquares(MoveDo.MoveTo - b1), PieceList[MoveDo.MoveTo + b1]);
+        UpdatePieceList(eSquares(MoveDo.MoveTo + East), eSquares(MoveDo.MoveFrom + East), ePiece(wR + Turn * 6));
+        HashKey ^= ZobCR[CastRights];
         CastRights ^= (CastRights & (3 << (Turn * 2)));
+        HashKey ^= ZobCR[CastRights];
     }
         
     else if(MoveDo.MoveType == Q_CASTLE)
@@ -28,9 +30,13 @@ void Position::MakeMove(Move MoveDo)
         Colour_BB[Turn] ^= bb | ((sq(d1) | sq(h1)) << (56 * Turn));
         Piece_BB[K] ^= bb;
         Piece_BB[R] ^= (sq(d1) | sq(h1)) << (56 * Turn);
+        UpdateHashKey(MoveDo.MoveFrom, MoveDo.MoveTo);
+        UpdateHashKey(eSquares(MoveDo.MoveTo + 2*West), eSquares(MoveDo.MoveFrom + West));
         UpdatePieceList(MoveDo.MoveFrom, MoveDo.MoveTo, ePiece(wK + Turn * 6));
-        UpdatePieceList(eSquares(MoveDo.MoveFrom - b1), eSquares(MoveDo.MoveTo + b1), ePiece(wR + Turn * 6));
+        UpdatePieceList(eSquares(MoveDo.MoveTo + 2*West), eSquares(MoveDo.MoveFrom + West), ePiece(wR + Turn * 6));
+        HashKey ^= ZobCR[CastRights];
         CastRights ^= (CastRights & (3 << (Turn * 2)));
+        HashKey ^= ZobCR[CastRights];
     }
 
     else if(MoveDo.MoveType > Q_CASTLE)
@@ -40,7 +46,9 @@ void Position::MakeMove(Move MoveDo)
         {
             Piece_BB[PieceList[MoveDo.MoveTo] % 6] ^= sq(MoveDo.MoveTo);
             Colour_BB[~Turn] ^= sq(MoveDo.MoveTo);
+            HashKey ^= ZobPieces[PieceList[MoveDo.MoveTo]][MoveDo.MoveTo];
         }
+        HashKey ^= ZobPieces[PieceList[MoveDo.MoveFrom]][MoveDo.MoveFrom];
         switch (MoveDo.MoveType)
         {
         case N_PROMOTION:
@@ -68,6 +76,7 @@ void Position::MakeMove(Move MoveDo)
             printf("What");
             return;
         }
+        HashKey ^= ZobPieces[PieceList[MoveDo.MoveTo]][MoveDo.MoveTo];
     }
 
     
@@ -82,6 +91,7 @@ void Position::MakeMove(Move MoveDo)
         { 
             Piece_BB[P] ^= sq(MoveDo.MoveTo + South);
             Colour_BB[~Turn] ^= sq(MoveDo.MoveTo + South);
+            HashKey ^= ZobPieces[PieceList[MoveDo.MoveTo + South]][MoveDo.MoveTo + South];
             PieceList[MoveDo.MoveTo + South] == no_Piece;
         }
             
@@ -89,6 +99,7 @@ void Position::MakeMove(Move MoveDo)
         {
             Piece_BB[P] ^= sq(MoveDo.MoveTo + North);
             Colour_BB[~Turn] ^= sq(MoveDo.MoveTo + North);
+            HashKey ^= ZobPieces[PieceList[MoveDo.MoveTo + North]][MoveDo.MoveTo + North];
             PieceList[MoveDo.MoveTo + North] == no_Piece;
         }
             
@@ -97,13 +108,16 @@ void Position::MakeMove(Move MoveDo)
     {
         Piece_BB[PieceList[MoveDo.MoveTo] % 6] ^= sq(MoveDo.MoveTo);
         Colour_BB[~Turn] ^= sq(MoveDo.MoveTo);
+        HashKey ^= ZobPieces[PieceList[MoveDo.MoveTo]][MoveDo.MoveTo];
     }
 
     UpdatePieceList(MoveDo.MoveFrom, MoveDo.MoveTo, PieceList[MoveDo.MoveFrom]);
+    UpdateHashKey(MoveDo.MoveFrom, MoveDo.MoveTo);
     }
 
     if(CastlingRights(Turn) != 0)
     {
+        HashKey ^= ZobCR[CastRights];
         if(MoveDo.PieceType == K)
             CastRights ^= 3 << (2 * Turn);
 
@@ -115,6 +129,7 @@ void Position::MakeMove(Move MoveDo)
             if((CastlingRights(Turn) & 2) && (MoveDo.MoveFrom == (h1 << (56 * Turn))))
                 CastRights ^= 2 << (2 * Turn);
         }
+        HashKey ^= ZobCR[CastRights];
     }
 
     if((MoveDo.MoveType != CAPTURE) && (MoveDo.PieceType != P))
@@ -122,15 +137,16 @@ void Position::MakeMove(Move MoveDo)
     
     Turn = ~Turn;
     if(Turn == White) move_no++;
+    if(EPsq != n_sq) 
+        HashKey ^= ZobEPsq[EPsq];
     EPsq = n_sq;
 
-    if(MoveDo.MoveType == DOUBLE_PAWN_PUSH)
+    if(MoveDo.MoveType == DOUBLE_PAWN_PUSH) 
+    {
         EPsq = eSquares(MoveDo.MoveTo + South);
-}
-
-void Position::UndoMove(UNDO MoveUndo)
-{
-    
+        HashKey ^= ZobEPsq[EPsq];
+    }
+    HashKey ^= ~U64(0);
 }
 
 // Method for checking legality of moves.
