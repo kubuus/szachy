@@ -34,7 +34,7 @@ enum ePieceType {P, N, B, R, Q, K, NPT};
 enum ePiece {wP, wN, wB, wR, wQ, wK, bP, bN, bB, bR, bQ, bK, no_Piece};
 enum eFiles {A_FILE, B_FILE, C_FILE, D_FILE, E_FILE, F_FILE, G_FILE, H_FILE};
 enum eRanks {RANK_1, RANK_2, RANK_3, RANK_4, RANK_5, RANK_6, RANK_7, RANK_8};
-enum eMoveType {QUIET, CAPTURE, DOUBLE_PAWN_PUSH, EN_PASSANT_CAPTURE, K_CASTLE, Q_CASTLE, N_PROMOTION, B_PROMOTION, R_PROMOTION, Q_PROMOTION};
+enum eMoveType {QUIET, CAPTURE, DOUBLE_PAWN_PUSH, EN_PASSANT_CAPTURE, K_CASTLE, Q_CASTLE, N_PROMOTION, B_PROMOTION, R_PROMOTION, Q_PROMOTION, NO_TYPE};
 enum eSquares {
     a1, b1, c1, d1, e1, f1, g1, h1,
     a2, b2, c2, d2, e2, f2, g2, h2,
@@ -94,14 +94,17 @@ constexpr U64 ShiftSideways(U64 b) {return ShiftWest(b) | ShiftEast(b);};
 
 class Move{
 public:
-    eSquares MoveFrom;
-    eSquares MoveTo;
-    eMoveType MoveType;
-    ePieceType PieceType;
-    eSquares EPsquare;
+    eSquares MoveFrom = n_sq;
+    eSquares MoveTo = n_sq;
+    eMoveType MoveType = NO_TYPE;
+    ePieceType PieceType = NPT;
+    eSquares EPsquare = n_sq;
+    int CastRights = 0;
 
-    void Init(eSquares MF, eSquares MT, eMoveType MTP, ePieceType PT, eSquares EPS)
-    {MoveFrom = MF; MoveTo = MT; MoveType = MTP; PieceType = PT; EPsquare = EPS;};
+    void Init(eSquares MF, eSquares MT, eMoveType MTP, ePieceType PT, eSquares EPS, int CR)
+    {
+        MoveFrom = MF; MoveTo = MT; MoveType = MTP; PieceType = PT; EPsquare = EPS; CastRights = CR;
+    };
 
 };
 
@@ -126,21 +129,6 @@ public:
 
 extern Bitboards BB_Misc;
 
-typedef struct UNDO
-{
-    eSquares MoveTo;
-    eSquares MoveFrom;
-    eMoveType MoveType;
-    ePieceType PieceType;
-    eSquares EPsquare;
-    int CastRights;
-    typedef struct UNDO *UndoNext;
-
-    void Init(eSquares MF, eSquares MT, eMoveType MTP, ePieceType PT, eSquares EPS, int CR)
-    {MoveFrom = MF; MoveTo = MT; MoveType = MTP; PieceType = PT; EPsquare = EPS; CastRights = CR;};
-
-}UNDO;
-
 
 class Position{
 private:
@@ -151,7 +139,7 @@ private:
     U64 ZobEPsq[8];
     U64 HashKey;
     
-    UNDO *Undo = NULL;
+    Move *Undo = NULL;
 
     eColour Turn = NC;               
     int CastRights = 0;         // Castling rights for both sides
@@ -167,7 +155,7 @@ public:
     U64 InBetween(eSquares StartingSq, eSquares TargetSq);
     
     void MakeMove(Move Movedo);
-    void UndoMove(UNDO MoveUndo);
+    void UndoMove(Move MoveUndo);
     bool IsLegal(Move Move);
 
     void PrintBB(U64 bb);
@@ -176,6 +164,7 @@ public:
 
     std::array<ePiece, 64> PieceList;
     void UpdatePieceList(eSquares StartingSq, eSquares TargetSq, ePiece Piece);
+    void UpdateHashKey(eSquares StartingSq, eSquares TargetSq, ePiece TakenPiece);
 };
 
 

@@ -79,3 +79,12 @@ void Position::InitHashKey()
         HashKey ^= ~U64(0);
 
 }
+
+// Helper method for updating HashKey. Assumes being called after move.
+void Position::UpdateHashKey(eSquares StartingSq, eSquares TargetSq, ePiece TakenPiece)
+{
+    if(TakenPiece != no_Piece)
+        HashKey ^= ZobPieces[TakenPiece][TargetSq];
+    HashKey ^= ZobPieces[PieceList[TargetSq]][StartingSq];
+    HashKey ^= ZobPieces[PieceList[TargetSq]][TargetSq];
+}
