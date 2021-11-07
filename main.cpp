@@ -1,8 +1,6 @@
 #include <iostream>
 #include "types.h"
 
-Bitboards BB_Misc;
-
 int main()
 {
     Position BB;

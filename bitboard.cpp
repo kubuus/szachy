@@ -19,6 +19,7 @@ void Bitboards::Init()
             PawnMoves[0][i] = ShiftNorth(sq(i));
         else
             PawnMoves[0][i] = ShiftNorth(sq(i)) | sq(i+2*North);
+
         if(i % 8 != RANK_7)
             PawnMoves[1][i] = ShiftSouth(sq(i));
         else
@@ -72,7 +73,7 @@ U64 Bitboards::GetAttacks(ePieceType piece, eSquares sq, U64 occ, eColour col)
     switch (piece)
     {
     case P:
-        return GetPawnAttacks(sq, col) | GetPawnMoves(sq, col);
+        return GetPawnAttacks(sq, col) | GetPawnMoves(sq, col, occ);
     
     case N:
         return GetKnightAttacks(sq);

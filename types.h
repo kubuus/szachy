@@ -164,7 +164,7 @@ public:
 
     std::array<ePiece, 64> PieceList;
     void UpdatePieceList(eSquares StartingSq, eSquares TargetSq, ePiece Piece);
-    void UpdateHashKey(eSquares StartingSq, eSquares TargetSq, ePiece TakenPiece);
+    void UpdateHashKey(eSquares StartingSq, eSquares TargetSq);
 };
 
 
