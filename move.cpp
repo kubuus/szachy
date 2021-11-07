@@ -149,6 +149,13 @@ void Position::MakeMove(Move MoveDo)
     HashKey ^= ~U64(0);
 }
 
+// This will be easy to implement when there will be a position tree. Then we can just
+// Unhash the HashKey to get the remembered position and set it to the current one.
+void Position::UndoMove(Move MoveUndo)
+{
+    return;
+}
+
 // Method for checking legality of moves.
 // Works for any move, even not generated inside the program.
 bool Position::IsLegal(Move MoveDo)
@@ -159,19 +166,24 @@ bool Position::IsLegal(Move MoveDo)
     if((MoveDo.MoveTo & Colour_BB[Turn]) || !(MoveDo.MoveTo & BB_Misc.GetAttacks(MoveDo.PieceType, MoveDo.MoveFrom, GetPos(NC, NPT), Turn)))
         return false;
     
-    if(MoveDo.PieceType == K && AttackedSquare(MoveDo.MoveTo, ~Turn))
+    if((MoveDo.PieceType == K && AttackedSquare(MoveDo.MoveTo, ~Turn)))
         return false;
 
+
+    // a bit of piece shuffling, might clean it up later
     else {
-    Colour_BB[Turn] ^= sq(MoveDo.MoveFrom);
+    Colour_BB[Turn] ^= sq(MoveDo.MoveFrom) | sq(MoveDo.MoveTo);
+    Piece_BB[MoveDo.PieceType] ^= sq(MoveDo.MoveFrom) | sq(MoveDo.MoveTo);
 
     if(AttackedSquare(eSquares(TrailingZeros(GetPos(Turn, K))), ~Turn))
     {
-        Colour_BB[Turn] ^= sq(MoveDo.MoveFrom);
+        Colour_BB[Turn] ^= sq(MoveDo.MoveFrom) | sq(MoveDo.MoveTo);
+        Piece_BB[MoveDo.PieceType] ^= sq(MoveDo.MoveFrom) | sq(MoveDo.MoveTo);
         return false;
     }
     
-    Colour_BB[Turn] ^= sq(MoveDo.MoveFrom);
+    Colour_BB[Turn] ^= sq(MoveDo.MoveFrom) | sq(MoveDo.MoveTo);
+    Piece_BB[MoveDo.PieceType] ^= sq(MoveDo.MoveFrom) | sq(MoveDo.MoveTo);
     }
 
     switch(MoveDo.MoveType)
