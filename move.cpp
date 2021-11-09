@@ -7,8 +7,6 @@
 // This method DOES NOT check whether the move is legal
 void Position::MakeMove(Move MoveDo)
 {
-    Undo->Init(MoveDo.MoveTo, MoveDo.MoveFrom, MoveDo.MoveType, MoveDo.PieceType, EPsq, CastRights);
-
     U64 bb = sq(MoveDo.MoveFrom) | (sq(MoveDo.MoveTo));
 
     if(MoveDo.MoveType == K_CASTLE)
