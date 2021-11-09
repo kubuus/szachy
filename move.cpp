@@ -151,7 +151,7 @@ void Position::MakeMove(Move MoveDo)
 
 // This will be easy to implement when there will be a position tree. Then we can just
 // Unhash the HashKey to get the remembered position and set it to the current one.
-void Position::UndoMove(Move MoveUndo)
+void Game::UndoMove(Move MoveUndo)
 {
     return;
 }

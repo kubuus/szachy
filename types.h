@@ -1,6 +1,7 @@
 #include <cstdint>
 #include <string>
 #include <array>
+#include <unordered_map>
 
 using U64 = uint64_t;
 
@@ -139,7 +140,7 @@ private:
     U64 ZobEPsq[8];
     U64 HashKey;
     
-    Move *Undo = NULL;
+    
 
     eColour Turn = NC;               
     int CastRights = 0;         // Castling rights for both sides
@@ -148,14 +149,17 @@ private:
     int move_no = 0;            // Move number
 
 public:
+    
+    Position *Undo = NULL;
+
     void Init(std::string FEN);
     void InitHashKey();
 
     U64 GetPos(eColour Col, ePieceType PieceType);
+    U64 GetHash() { return HashKey; };
     U64 InBetween(eSquares StartingSq, eSquares TargetSq);
     
     void MakeMove(Move Movedo);
-    void UndoMove(Move MoveUndo);
     bool IsLegal(Move Move);
 
     void PrintBB(U64 bb);
@@ -165,6 +169,23 @@ public:
     std::array<ePiece, 64> PieceList;
     void UpdatePieceList(eSquares StartingSq, eSquares TargetSq, ePiece Piece);
     void UpdateHashKey(eSquares StartingSq, eSquares TargetSq);
+};
+
+class Game
+{
+private:
+    std::unordered_map<U64, Position> PositionMap;
+    std::vector<std::vector<U64>> MoveList; // 2d vector, first dim is depth, second is moves in this depth
+    int Depth = 0;
+       
+public:
+    void Init(Position Pos);
+    
+    void PushPos(Position Pos) { PositionMap.insert({ Pos.GetHash(), Pos }); };
+    Position GetPos(U64 Hash) { return PositionMap.find(Hash)->second; };
+
+    void MoveGen(Position Pos);
+    void UndoMove(Move MoveUndo);
 };
 
 
