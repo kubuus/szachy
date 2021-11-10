@@ -90,7 +90,7 @@ void Position::MakeMove(Move MoveDo)
             Piece_BB[P] ^= sq(MoveDo.MoveTo + South);
             Colour_BB[~Turn] ^= sq(MoveDo.MoveTo + South);
             HashKey ^= ZobPieces[PieceList[MoveDo.MoveTo + South]][MoveDo.MoveTo + South];
-            PieceList[MoveDo.MoveTo + South] == no_Piece;
+            PieceList[MoveDo.MoveTo + South] = no_Piece;
         }
             
         else
@@ -98,7 +98,7 @@ void Position::MakeMove(Move MoveDo)
             Piece_BB[P] ^= sq(MoveDo.MoveTo + North);
             Colour_BB[~Turn] ^= sq(MoveDo.MoveTo + North);
             HashKey ^= ZobPieces[PieceList[MoveDo.MoveTo + North]][MoveDo.MoveTo + North];
-            PieceList[MoveDo.MoveTo + North] == no_Piece;
+            PieceList[MoveDo.MoveTo + North] = no_Piece;
         }
             
     }
