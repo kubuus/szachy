@@ -3,7 +3,6 @@
 #include <math.h>
 #include <iostream>
 
-
 void Bitboards::Init()
 {
     initmagicmoves();
