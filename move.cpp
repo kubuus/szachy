@@ -158,10 +158,10 @@ void Game::UndoMove(Move MoveUndo)
 // Works for any move, even not generated inside the program.
 bool Position::IsLegal(Move MoveDo)
 {
-    if(!(MoveDo.MoveFrom & Colour_BB[Turn]) || !(MoveDo.MoveFrom & Piece_BB[MoveDo.PieceType]))
+    if(!(sq(MoveDo.MoveFrom) & Colour_BB[Turn]) || !(sq(MoveDo.MoveFrom) & Piece_BB[MoveDo.PieceType]))
         return false;
     
-    if((MoveDo.MoveTo & Colour_BB[Turn]) || !(MoveDo.MoveTo & BB_Misc.GetAttacks(MoveDo.PieceType, MoveDo.MoveFrom, GetPos(NC, NPT), Turn)))
+    if((sq(MoveDo.MoveTo) & Colour_BB[Turn]) || !(sq(MoveDo.MoveTo) & BB_Misc.GetAttacks(MoveDo.PieceType, MoveDo.MoveFrom, GetPos(NC, NPT), Turn)))
         return false;
     
     if((MoveDo.PieceType == K && AttackedSquare(MoveDo.MoveTo, ~Turn)))
@@ -193,11 +193,11 @@ bool Position::IsLegal(Move MoveDo)
                 return false;
             
             if(Turn == White)
-                if(!(MoveDo.MoveFrom & RANK_2_BB) || (ShiftNorth(MoveDo.MoveFrom) & GetPos(NC, NPT)))
+                if((sq(MoveDo.MoveFrom) & RANK_2_BB) && !(ShiftNorth(MoveDo.MoveFrom) & GetPos(NC, NPT)))
                     return false;
 
             if(Turn == Black)
-                if(!(MoveDo.MoveFrom & RANK_7_BB) || (ShiftSouth(MoveDo.MoveFrom) & GetPos(NC, NPT)))
+                if((sq(MoveDo.MoveFrom) & RANK_7_BB) && !(ShiftSouth(MoveDo.MoveFrom) & GetPos(NC, NPT)))
                     return false;
 
             return true;

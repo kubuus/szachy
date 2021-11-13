@@ -12,8 +12,9 @@ int static TrailingZeros(U64 n) {
     return __builtin_ctzll(n);
 #endif
 #if defined(_MSC_VER)
-    //#include <intrin.h>
-    return __lzcnt64(n);
+    unsigned long index;
+    _BitScanForward64(&index, n);
+    return index;
 #endif
 }
 int static PopCount(U64 bb) {
@@ -130,7 +131,7 @@ public:
 };
 
 // I have no idea why extern doesn't work here, even when I only declare it once.
-static Bitboards BB_Misc;
+extern Bitboards BB_Misc;
 
 
 class Position{
@@ -185,10 +186,12 @@ public:
     void Init(Position Pos);
     
     void PushPos(Position Pos) { PositionMap.insert({ Pos.GetHash(), Pos }); };
-    Position GetPos(U64 Hash) { return PositionMap.find(Hash)->second; };
+    Position FindPos(U64 Hash) { return PositionMap.find(Hash)->second; };
 
     void MoveGen(Position Pos);
     void UndoMove(Move MoveUndo);
+
+    void PrintGen(int dep);
 };
 
 

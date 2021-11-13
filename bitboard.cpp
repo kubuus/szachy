@@ -14,15 +14,15 @@ void Bitboards::Init()
         PawnAttacks[0][i] = ShiftNE(sq(i)) | ShiftNW(sq(i));
         PawnAttacks[1][i] = ShiftSE(sq(i)) | ShiftSW(sq(i));
 
-        if(i % 8 != RANK_2)
-            PawnMoves[0][i] = ShiftNorth(sq(i));
-        else
+        if(sq(i) & RANK_2_BB)
             PawnMoves[0][i] = ShiftNorth(sq(i)) | sq(i+2*North);
-
-        if(i % 8 != RANK_7)
-            PawnMoves[1][i] = ShiftSouth(sq(i));
         else
+            PawnMoves[0][i] = ShiftNorth(sq(i));
+
+        if(sq(i) & RANK_7_BB)
             PawnMoves[1][i] = ShiftSouth(sq(i)) | sq(i + 2 * South);
+        else
+            PawnMoves[1][i] = ShiftSouth(sq(i));
 
         KingAttacks[i] = ShiftSideways(sq(i));
         KingAttacks[i] |= ShiftNorth(KingAttacks[i] | sq(i)) | ShiftSouth(KingAttacks[i] | sq(i));
