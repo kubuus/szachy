@@ -99,10 +99,41 @@ void Position::PrintBB(U64 bb)
 {
     for (int j = 0; j < 8; j++)
     {
-        for(int i = 0; i < 8; i++){
-            char n = (bb >> (a8 + i - (j * 8)) & (1));
-            std::cout << (n ? '1' : '.');
+        for(int i = 0; i < 8; i++)
+        {
+            ePiece n = PieceList[a8 + i - j*8];
+            if (n == no_Piece)
+            {
+                printf(" . ");
+                continue;
             }
+            if (n / 6)
+                printf(" b");
+            else
+                printf(" w");
+            switch(n % 6)
+            {
+            case(0):
+                printf("P");
+                break;
+            case(1):
+                printf("N");
+                break;
+            case(2):
+                printf("B");
+                break;
+            case(3):
+                printf("R");
+                break;
+            case(4):
+                printf("Q");
+                break;
+            case(5):
+                printf("K");
+                break;
+            }
+
+        }
 
     std::cout << "\n";
     }

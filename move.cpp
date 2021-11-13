@@ -170,19 +170,32 @@ bool Position::IsLegal(Move MoveDo)
 
     // a bit of piece shuffling, might clean it up later
     else {
-    Colour_BB[Turn] ^= sq(MoveDo.MoveFrom) | sq(MoveDo.MoveTo);
-    Piece_BB[MoveDo.PieceType] ^= sq(MoveDo.MoveFrom) | sq(MoveDo.MoveTo);
-
-    if(AttackedSquare(eSquares(TrailingZeros(GetPos(Turn, K))), ~Turn))
-    {
         Colour_BB[Turn] ^= sq(MoveDo.MoveFrom) | sq(MoveDo.MoveTo);
         Piece_BB[MoveDo.PieceType] ^= sq(MoveDo.MoveFrom) | sq(MoveDo.MoveTo);
-        return false;
-    }
-    
-    Colour_BB[Turn] ^= sq(MoveDo.MoveFrom) | sq(MoveDo.MoveTo);
-    Piece_BB[MoveDo.PieceType] ^= sq(MoveDo.MoveFrom) | sq(MoveDo.MoveTo);
-    }
+        if (Colour_BB[~Turn] & sq(MoveDo.MoveTo))
+        {
+            Piece_BB[PieceList[MoveDo.MoveTo] % 6] ^= sq(MoveDo.MoveTo);
+            Colour_BB[~Turn] ^= sq(MoveDo.MoveTo);
+            if (AttackedSquare(eSquares(TrailingZeros(GetPos(Turn, K))), ~Turn))
+            {
+                Piece_BB[PieceList[MoveDo.MoveTo] % 6] ^= sq(MoveDo.MoveTo);
+                Colour_BB[~Turn] ^= sq(MoveDo.MoveTo);
+                Colour_BB[Turn] ^= sq(MoveDo.MoveFrom) | sq(MoveDo.MoveTo);
+                Piece_BB[MoveDo.PieceType] ^= sq(MoveDo.MoveFrom) | sq(MoveDo.MoveTo);
+                return false;
+            }
+            Piece_BB[PieceList[MoveDo.MoveTo] % 6] ^= sq(MoveDo.MoveTo);
+            Colour_BB[~Turn] ^= sq(MoveDo.MoveTo);
+        }
+        else if (AttackedSquare(eSquares(TrailingZeros(GetPos(Turn, K))), ~Turn))
+            {
+                Colour_BB[Turn] ^= sq(MoveDo.MoveFrom) | sq(MoveDo.MoveTo);
+                Piece_BB[MoveDo.PieceType] ^= sq(MoveDo.MoveFrom) | sq(MoveDo.MoveTo);
+                return false;
+            }
+            Colour_BB[Turn] ^= sq(MoveDo.MoveFrom) | sq(MoveDo.MoveTo);
+            Piece_BB[MoveDo.PieceType] ^= sq(MoveDo.MoveFrom) | sq(MoveDo.MoveTo);
+        }
 
     switch(MoveDo.MoveType)
     {
@@ -193,12 +206,14 @@ bool Position::IsLegal(Move MoveDo)
                 return false;
             
             if(Turn == White)
-                if((sq(MoveDo.MoveFrom) & RANK_2_BB) && !(ShiftNorth(MoveDo.MoveFrom) & GetPos(NC, NPT)))
-                    return false;
+                if (sq(MoveDo.MoveFrom) & RANK_2_BB)
+                    if (ShiftNorth(sq(MoveDo.MoveFrom)) & GetPos(NC, NPT))
+                        return false;
 
             if(Turn == Black)
-                if((sq(MoveDo.MoveFrom) & RANK_7_BB) && !(ShiftSouth(MoveDo.MoveFrom) & GetPos(NC, NPT)))
-                    return false;
+                if(sq(MoveDo.MoveFrom) & RANK_7_BB)
+                    if(ShiftSouth(sq(MoveDo.MoveFrom)) & GetPos(NC, NPT))
+                        return false;
 
             return true;
 
