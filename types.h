@@ -1,6 +1,7 @@
 #include <cstdint>
 #include <string>
 #include <array>
+#include <unordered_map>
 
 using U64 = uint64_t;
 
@@ -11,8 +12,9 @@ int static TrailingZeros(U64 n) {
     return __builtin_ctzll(n);
 #endif
 #if defined(_MSC_VER)
-    //#include <intrin.h>
-    return __lzcnt64(n);
+    unsigned long index;
+    _BitScanForward64(&index, n);
+    return index;
 #endif
 }
 int static PopCount(U64 bb) {
@@ -31,6 +33,8 @@ enum eColour {White, Black, NC};
 inline eColour operator~(eColour Col) {return eColour(Col ^ Black);}; 
 
 enum ePieceType {P, N, B, R, Q, K, NPT};
+inline ePieceType operator++(ePieceType pt) { return ePieceType(pt + 1); };
+
 enum ePiece {wP, wN, wB, wR, wQ, wK, bP, bN, bB, bR, bQ, bK, no_Piece};
 enum eFiles {A_FILE, B_FILE, C_FILE, D_FILE, E_FILE, F_FILE, G_FILE, H_FILE};
 enum eRanks {RANK_1, RANK_2, RANK_3, RANK_4, RANK_5, RANK_6, RANK_7, RANK_8};
@@ -99,11 +103,10 @@ public:
     eMoveType MoveType = NO_TYPE;
     ePieceType PieceType = NPT;
     eSquares EPsquare = n_sq;
-    int CastRights = 0;
 
-    void Init(eSquares MF, eSquares MT, eMoveType MTP, ePieceType PT, eSquares EPS, int CR)
+    void Init(eSquares MF, eSquares MT, eMoveType MTP, ePieceType PT, eSquares EPS)
     {
-        MoveFrom = MF; MoveTo = MT; MoveType = MTP; PieceType = PT; EPsquare = EPS; CastRights = CR;
+        MoveFrom = MF; MoveTo = MT; MoveType = MTP; PieceType = PT; EPsquare = EPS;
     };
 
 };
@@ -127,6 +130,7 @@ public:
     U64 GetAttacks(ePieceType piece, eSquares sq, U64 occ, eColour col);
 };
 
+// I have no idea why extern doesn't work here, even when I only declare it once.
 extern Bitboards BB_Misc;
 
 
@@ -134,12 +138,12 @@ class Position{
 private:
     U64 Colour_BB[2] = {0, 0};
     U64 Piece_BB[6] = {0, 0, 0, 0, 0, 0};
-    U64 ZobPieces[12][64];
-    U64 ZobCR[16];
-    U64 ZobEPsq[8];
-    U64 HashKey;
+    U64 ZobPieces[12][64] {};
+    U64 ZobCR[16] {};
+    U64 ZobEPsq[8] {};
+    U64 HashKey = 0;
     
-    Move *Undo = NULL;
+public:    
 
     eColour Turn = NC;               
     int CastRights = 0;         // Castling rights for both sides
@@ -147,24 +151,47 @@ private:
     int ply = 0;                // 50 move rule
     int move_no = 0;            // Move number
 
-public:
+
+    
+    Position *Undo = NULL;
+
     void Init(std::string FEN);
     void InitHashKey();
 
     U64 GetPos(eColour Col, ePieceType PieceType);
+    U64 GetHash() { return HashKey; };
+    int GetTurn() { return Turn; };
     U64 InBetween(eSquares StartingSq, eSquares TargetSq);
     
     void MakeMove(Move Movedo);
-    void UndoMove(Move MoveUndo);
     bool IsLegal(Move Move);
 
     void PrintBB(U64 bb);
     bool AttackedSquare(eSquares Square, eColour Col);
     U64 CastlingRights(int Col);
 
-    std::array<ePiece, 64> PieceList;
+    std::array<ePiece, 64> PieceList {};
     void UpdatePieceList(eSquares StartingSq, eSquares TargetSq, ePiece Piece);
     void UpdateHashKey(eSquares StartingSq, eSquares TargetSq);
+};
+
+class Game
+{
+private:
+    std::unordered_map<U64, Position> PositionMap;
+    std::vector<std::vector<U64>> MoveList; // 2d vector, first dim is depth, second is positions in this depth
+    int Depth = 0;
+       
+public:
+    void Init(Position Pos);
+    
+    void PushPos(Position Pos) { PositionMap.insert({ Pos.GetHash(), Pos }); };
+    Position FindPos(U64 Hash) { return PositionMap.find(Hash)->second; };
+
+    void MoveGen(Position Pos);
+    void UndoMove(Move MoveUndo);
+
+    void PrintGen(int dep);
 };
 
 

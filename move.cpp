@@ -7,8 +7,6 @@
 // This method DOES NOT check whether the move is legal
 void Position::MakeMove(Move MoveDo)
 {
-    Undo->Init(MoveDo.MoveTo, MoveDo.MoveFrom, MoveDo.MoveType, MoveDo.PieceType, EPsq, CastRights);
-
     U64 bb = sq(MoveDo.MoveFrom) | (sq(MoveDo.MoveTo));
 
     if(MoveDo.MoveType == K_CASTLE)
@@ -92,7 +90,7 @@ void Position::MakeMove(Move MoveDo)
             Piece_BB[P] ^= sq(MoveDo.MoveTo + South);
             Colour_BB[~Turn] ^= sq(MoveDo.MoveTo + South);
             HashKey ^= ZobPieces[PieceList[MoveDo.MoveTo + South]][MoveDo.MoveTo + South];
-            PieceList[MoveDo.MoveTo + South] == no_Piece;
+            PieceList[MoveDo.MoveTo + South] = no_Piece;
         }
             
         else
@@ -100,7 +98,7 @@ void Position::MakeMove(Move MoveDo)
             Piece_BB[P] ^= sq(MoveDo.MoveTo + North);
             Colour_BB[~Turn] ^= sq(MoveDo.MoveTo + North);
             HashKey ^= ZobPieces[PieceList[MoveDo.MoveTo + North]][MoveDo.MoveTo + North];
-            PieceList[MoveDo.MoveTo + North] == no_Piece;
+            PieceList[MoveDo.MoveTo + North] = no_Piece;
         }
             
     }
@@ -151,7 +149,7 @@ void Position::MakeMove(Move MoveDo)
 
 // This will be easy to implement when there will be a position tree. Then we can just
 // Unhash the HashKey to get the remembered position and set it to the current one.
-void Position::UndoMove(Move MoveUndo)
+void Game::UndoMove(Move MoveUndo)
 {
     return;
 }
@@ -160,10 +158,10 @@ void Position::UndoMove(Move MoveUndo)
 // Works for any move, even not generated inside the program.
 bool Position::IsLegal(Move MoveDo)
 {
-    if(!(MoveDo.MoveFrom & Colour_BB[Turn]) || !(MoveDo.MoveFrom & Piece_BB[MoveDo.PieceType]))
+    if(!(sq(MoveDo.MoveFrom) & Colour_BB[Turn]) || !(sq(MoveDo.MoveFrom) & Piece_BB[MoveDo.PieceType]))
         return false;
     
-    if((MoveDo.MoveTo & Colour_BB[Turn]) || !(MoveDo.MoveTo & BB_Misc.GetAttacks(MoveDo.PieceType, MoveDo.MoveFrom, GetPos(NC, NPT), Turn)))
+    if((sq(MoveDo.MoveTo) & Colour_BB[Turn]) || !(sq(MoveDo.MoveTo) & BB_Misc.GetAttacks(MoveDo.PieceType, MoveDo.MoveFrom, GetPos(NC, NPT), Turn)))
         return false;
     
     if((MoveDo.PieceType == K && AttackedSquare(MoveDo.MoveTo, ~Turn)))
@@ -172,19 +170,32 @@ bool Position::IsLegal(Move MoveDo)
 
     // a bit of piece shuffling, might clean it up later
     else {
-    Colour_BB[Turn] ^= sq(MoveDo.MoveFrom) | sq(MoveDo.MoveTo);
-    Piece_BB[MoveDo.PieceType] ^= sq(MoveDo.MoveFrom) | sq(MoveDo.MoveTo);
-
-    if(AttackedSquare(eSquares(TrailingZeros(GetPos(Turn, K))), ~Turn))
-    {
         Colour_BB[Turn] ^= sq(MoveDo.MoveFrom) | sq(MoveDo.MoveTo);
         Piece_BB[MoveDo.PieceType] ^= sq(MoveDo.MoveFrom) | sq(MoveDo.MoveTo);
-        return false;
-    }
-    
-    Colour_BB[Turn] ^= sq(MoveDo.MoveFrom) | sq(MoveDo.MoveTo);
-    Piece_BB[MoveDo.PieceType] ^= sq(MoveDo.MoveFrom) | sq(MoveDo.MoveTo);
-    }
+        if (Colour_BB[~Turn] & sq(MoveDo.MoveTo))
+        {
+            Piece_BB[PieceList[MoveDo.MoveTo] % 6] ^= sq(MoveDo.MoveTo);
+            Colour_BB[~Turn] ^= sq(MoveDo.MoveTo);
+            if (AttackedSquare(eSquares(TrailingZeros(GetPos(Turn, K))), ~Turn))
+            {
+                Piece_BB[PieceList[MoveDo.MoveTo] % 6] ^= sq(MoveDo.MoveTo);
+                Colour_BB[~Turn] ^= sq(MoveDo.MoveTo);
+                Colour_BB[Turn] ^= sq(MoveDo.MoveFrom) | sq(MoveDo.MoveTo);
+                Piece_BB[MoveDo.PieceType] ^= sq(MoveDo.MoveFrom) | sq(MoveDo.MoveTo);
+                return false;
+            }
+            Piece_BB[PieceList[MoveDo.MoveTo] % 6] ^= sq(MoveDo.MoveTo);
+            Colour_BB[~Turn] ^= sq(MoveDo.MoveTo);
+        }
+        else if (AttackedSquare(eSquares(TrailingZeros(GetPos(Turn, K))), ~Turn))
+            {
+                Colour_BB[Turn] ^= sq(MoveDo.MoveFrom) | sq(MoveDo.MoveTo);
+                Piece_BB[MoveDo.PieceType] ^= sq(MoveDo.MoveFrom) | sq(MoveDo.MoveTo);
+                return false;
+            }
+            Colour_BB[Turn] ^= sq(MoveDo.MoveFrom) | sq(MoveDo.MoveTo);
+            Piece_BB[MoveDo.PieceType] ^= sq(MoveDo.MoveFrom) | sq(MoveDo.MoveTo);
+        }
 
     switch(MoveDo.MoveType)
     {
@@ -195,12 +206,14 @@ bool Position::IsLegal(Move MoveDo)
                 return false;
             
             if(Turn == White)
-                if(!(MoveDo.MoveFrom & RANK_2_BB) || (ShiftNorth(MoveDo.MoveFrom) & GetPos(NC, NPT)))
-                    return false;
+                if (sq(MoveDo.MoveFrom) & RANK_2_BB)
+                    if (ShiftNorth(sq(MoveDo.MoveFrom)) & GetPos(NC, NPT))
+                        return false;
 
             if(Turn == Black)
-                if(!(MoveDo.MoveFrom & RANK_7_BB) || (ShiftSouth(MoveDo.MoveFrom) & GetPos(NC, NPT)))
-                    return false;
+                if(sq(MoveDo.MoveFrom) & RANK_7_BB)
+                    if(ShiftSouth(sq(MoveDo.MoveFrom)) & GetPos(NC, NPT))
+                        return false;
 
             return true;
 

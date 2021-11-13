@@ -1,17 +1,19 @@
 #include <iostream>
 #include "types.h"
 
+Bitboards BB_Misc;
+
 int main()
 {
     Position BB;
+    Game gm;
     BB_Misc.Init();
-    BB.Init("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1");
-    BB.PrintBB(BB.GetPos(White, R));
+    BB.Init("r1bqk1nr/pppp1ppp/2n5/2b1p3/2BPP3/2P2N2/P4PPP/RNBQK2R b KQkq - 0 6");
+    gm.Init(BB);
+    gm.MoveGen(BB);
+    gm.PrintGen(0);
+
     system("Pause");
-    for (int i = 0; i < 64; i++)
-    {
-        printf("%d - %d\n", i, BB.PieceList[i]);
-    }
     
 
     
