@@ -161,7 +161,10 @@ bool Position::IsLegal(Move MoveDo)
     if(!(sq(MoveDo.MoveFrom) & Colour_BB[Turn]) || !(sq(MoveDo.MoveFrom) & Piece_BB[MoveDo.PieceType]))
         return false;
     
-    if((sq(MoveDo.MoveTo) & Colour_BB[Turn]) || !(sq(MoveDo.MoveTo) & BB_Misc.GetAttacks(MoveDo.PieceType, MoveDo.MoveFrom, GetPos(NC, NPT), Turn)))
+    if(sq(MoveDo.MoveTo) & Colour_BB[Turn])
+        return false;
+
+    if (!(sq(MoveDo.MoveTo) & BB_Misc.GetAttacks(MoveDo.PieceType, MoveDo.MoveFrom, GetPos(NC, NPT), Turn)) && MoveDo.MoveType != K_CASTLE && MoveDo.MoveType != Q_CASTLE)
         return false;
     
     if((MoveDo.PieceType == K && AttackedSquare(MoveDo.MoveTo, ~Turn)))
@@ -226,15 +229,11 @@ bool Position::IsLegal(Move MoveDo)
             if((MoveDo.PieceType != K) || !(CastlingRights(Turn) & 1))
                 return false;
             
-            if(Turn == White)
-                if(GetPos(NC, NPT) & K_CASTLE_MASK)
+            if (AttackedSquare(eSquares(MoveDo.MoveFrom + East), ~Turn))
+                return false;
+
+            if(GetPos(NC, NPT) & (K_CASTLE_MASK) << (56 * Turn))
                     return false;
-                else return true;
-                
-            if(Turn == Black)
-                if(GetPos(NC, NPT) & (K_CASTLE_MASK) << 56)
-                    return false;
-                else return true;
             
             return true;
 
@@ -242,16 +241,13 @@ bool Position::IsLegal(Move MoveDo)
 
             if((MoveDo.PieceType != K) || !(CastlingRights(Turn) & 2))
                 return false;
+
+            if (AttackedSquare(eSquares(MoveDo.MoveFrom + West), ~Turn))
+                return false;
             
-            if(Turn == White)
-                if(GetPos(NC, NPT) & Q_CASTLE_MASK)
+            if(GetPos(NC, NPT) & (Q_CASTLE_MASK) << (56 * Turn))
                     return false;
-                else return true;
-                
-            if(Turn == Black)
-                if(GetPos(NC, NPT) & (Q_CASTLE_MASK) << 56)
-                    return false;
-                else return true;
+
             return true;
         
         default:

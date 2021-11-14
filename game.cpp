@@ -23,18 +23,19 @@ void Game::MoveGen(Position Pos)
 		U64 bb = Pos.GetPos(Col, Pi);
 		switch (Pi) {
 		case(P):
-			do
+			while(bb)
 			{
 				eSquares sq = eSquares(TrailingZeros(bb));
 				U64 attacks = BB_Misc.GetPawnAttacks(sq, Col) & (Pos.GetPos(~Col, NPT) | sq(U64(Pos.EPsq)));
 				U64 pushes = BB_Misc.GetPawnMoves(sq, Col, Pos.GetPos(NC, NPT));
-				do
+				while (attacks)
 				{
 					Move mv;
 					mv.Init(sq, eSquares(TrailingZeros(attacks)), QUIET, P, n_sq);
 					NextMoves.push_back(mv);
-				} while (attacks &= ~(-attacks));
-				do
+					attacks &= ~(-attacks);
+				}
+				while (pushes)
 				{
 					Move mv;
 					eSquares Dest = eSquares(TrailingZeros(pushes));
@@ -53,21 +54,24 @@ void Game::MoveGen(Position Pos)
 					else
 						mv.Init(sq, Dest, QUIET, P, n_sq);
 					NextMoves.push_back(mv);
-				} while (pushes &= ~(-pushes));
-			} while (bb &= ~(-bb));
+					pushes &= ~(-pushes);
+				}
+				bb &= ~(-bb);
+			}
 			break;
 
 		case(K):
-			do
+			while(bb)
 			{
 				eSquares sq = eSquares(TrailingZeros(bb));
 				U64 attacks = BB_Misc.GetKingAttacks(sq);
-				do
+				while (attacks)
 				{
 					Move mv;
 					mv.Init(sq, eSquares(TrailingZeros(attacks)), QUIET, K, n_sq);
 					NextMoves.push_back(mv);
-				} while (attacks &= ~(-attacks));
+					attacks &= ~(-attacks);
+				}
 				
 				// Castling logic, assuming we're not playing Fischer chess
 				if (Pos.CastlingRights(Col) & U64(1))
@@ -82,20 +86,23 @@ void Game::MoveGen(Position Pos)
 					mv.Init(sq, eSquares(sq + 2 * West), Q_CASTLE, K, n_sq);
 					NextMoves.push_back(mv);
 				}
-			} while (bb &= ~(-bb));
+				bb &= ~(-bb);
+			}
 			break;
 		default:
-			do
+			while (bb)
 			{
 				eSquares sq = eSquares(TrailingZeros(bb));
 				U64 attacks = BB_Misc.GetAttacks(Pi, sq, Pos.GetPos(NC, NPT), Col) & ~(Pos.GetPos(Pos.Turn, NPT));
-				do
+				while (attacks)
 				{
 					Move mv;
 					mv.Init(sq, eSquares(TrailingZeros(attacks)), QUIET, Pi, n_sq);
 					NextMoves.push_back(mv);
-				} while (attacks &= ~(-attacks));
-			} while (bb &= ~(-bb));
+					attacks &= ~(-attacks);
+				}
+				bb &= ~(-bb);
+			}
 			break;
 		}
 				
