@@ -150,7 +150,7 @@ public:
     eSquares EPsq = n_sq;       // En Passant squae
     int ply = 0;                // 50 move rule
     int move_no = 0;            // Move number
-
+    int state = 0;              // State of the game, 0 is normal, 1 is mate, 2 is stalemate
 
     
     Position *Undo = NULL;

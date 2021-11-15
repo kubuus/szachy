@@ -120,6 +120,14 @@ void Game::MoveGen(Position Pos)
 			PushPos(newPos);
 		}
 	}
+	if (NextMoves.size() == 0) 
+	{
+		if (Pos.AttackedSquare(eSquares(Pos.GetPos(Col, K)), ~Col))
+			Pos.state = 1;
+		else
+			Pos.state = 2;
+	}
+
 	MoveList.push_back(temp);
 }
 

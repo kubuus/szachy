@@ -8,7 +8,7 @@ int main()
     Position BB;
     Game gm;
     BB_Misc.Init();
-    BB.Init("1k1r1r2/8/8/8/8/8/P6P/R3K2R w KQ - 0 1");
+    BB.Init("rnbqkbnr/pppppQpp/8/7B/8/8/PPPPPPPP/RNBQKBNR b KQkq - 0 1");
     gm.Init(BB);
     gm.MoveGen(BB);
     gm.PrintGen(0);

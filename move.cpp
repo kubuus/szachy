@@ -229,10 +229,10 @@ bool Position::IsLegal(Move MoveDo)
             if((MoveDo.PieceType != K) || !(CastlingRights(Turn) & 1))
                 return false;
             
-            if (AttackedSquare(eSquares(MoveDo.MoveFrom + East), ~Turn))
+            if (AttackedSquare(eSquares(MoveDo.MoveFrom + East), ~Turn) || AttackedSquare(eSquares(MoveDo.MoveFrom), ~Turn))
                 return false;
 
-            if(GetPos(NC, NPT) & (K_CASTLE_MASK) << (56 * Turn))
+            if (GetPos(NC, NPT) & (K_CASTLE_MASK) << (56 * Turn))
                     return false;
             
             return true;
@@ -242,7 +242,7 @@ bool Position::IsLegal(Move MoveDo)
             if((MoveDo.PieceType != K) || !(CastlingRights(Turn) & 2))
                 return false;
 
-            if (AttackedSquare(eSquares(MoveDo.MoveFrom + West), ~Turn))
+            if (AttackedSquare(eSquares(MoveDo.MoveFrom + West), ~Turn) || AttackedSquare(eSquares(MoveDo.MoveFrom), ~Turn))
                 return false;
             
             if(GetPos(NC, NPT) & (Q_CASTLE_MASK) << (56 * Turn))
