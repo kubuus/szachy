@@ -95,7 +95,7 @@ U64 Bitboards::GetAttacks(ePieceType piece, eSquares sq, U64 occ, eColour col)
     return 0;
 }
 
-void Position::PrintBB(U64 bb)
+void Position::Print()
 {
     for (int j = 0; j < 8; j++)
     {
@@ -136,6 +136,20 @@ void Position::PrintBB(U64 bb)
         }
 
     std::cout << "\n";
+    }
+    std::cout << "\n";
+}
+
+void Position::PrintBB(U64 bb)
+{
+    for (int j = 0; j < 8; j++)
+    {
+        for (int i = 0; i < 8; i++) {
+            char n = (bb >> (a8 + i - (j * 8)) & (1));
+            std::cout << (n ? '1' : '.');
+        }
+
+        std::cout << "\n";
     }
     std::cout << "\n";
 }

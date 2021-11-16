@@ -7,6 +7,7 @@ using U64 = uint64_t;
 
 #define sq(x)  (U64(1) << (x))
 
+// Complier intrinsics for index of Least Significant 1 Bit (LS1B)
 int static TrailingZeros(U64 n) {
 #if defined (__GNUC__)
     return __builtin_ctzll(n);
@@ -17,6 +18,8 @@ int static TrailingZeros(U64 n) {
     return index;
 #endif
 }
+
+// Compiler intrinsics for bit population count
 int static PopCount(U64 bb) {
 #if defined (__GNUC__)
     return __builtin_popcountll(bb);
@@ -26,6 +29,8 @@ int static PopCount(U64 bb) {
     return __popcnt64(bb);
 #endif
 }
+
+// Function for isolating LS1B in a bitboard
 U64 static LS1B(U64 bb) {return bb & -bb;}
 
 
@@ -33,7 +38,6 @@ enum eColour {White, Black, NC};
 inline eColour operator~(eColour Col) {return eColour(Col ^ Black);}; 
 
 enum ePieceType {P, N, B, R, Q, K, NPT};
-inline ePieceType operator++(ePieceType pt) { return ePieceType(pt + 1); };
 
 enum ePiece {wP, wN, wB, wR, wQ, wK, bP, bN, bB, bR, bQ, bK, no_Piece};
 enum eFiles {A_FILE, B_FILE, C_FILE, D_FILE, E_FILE, F_FILE, G_FILE, H_FILE};
@@ -102,11 +106,10 @@ public:
     eSquares MoveTo = n_sq;
     eMoveType MoveType = NO_TYPE;
     ePieceType PieceType = NPT;
-    eSquares EPsquare = n_sq;
 
-    void Init(eSquares MF, eSquares MT, eMoveType MTP, ePieceType PT, eSquares EPS)
+    void Init(eSquares MF, eSquares MT, eMoveType MTP, ePieceType PT)
     {
-        MoveFrom = MF; MoveTo = MT; MoveType = MTP; PieceType = PT; EPsquare = EPS;
+        MoveFrom = MF; MoveTo = MT; MoveType = MTP; PieceType = PT;
     };
 
 };
@@ -130,7 +133,6 @@ public:
     U64 GetAttacks(ePieceType piece, eSquares sq, U64 occ, eColour col);
 };
 
-// I have no idea why extern doesn't work here, even when I only declare it once.
 extern Bitboards BB_Misc;
 
 
@@ -161,11 +163,13 @@ public:
     U64 GetPos(eColour Col, ePieceType PieceType);
     U64 GetHash() { return HashKey; };
     int GetTurn() { return Turn; };
+    void ChangeState(int n) { state = n % 3; };
     U64 InBetween(eSquares StartingSq, eSquares TargetSq);
     
     void MakeMove(Move Movedo);
     bool IsLegal(Move Move);
 
+    void Print();
     void PrintBB(U64 bb);
     bool AttackedSquare(eSquares Square, eColour Col);
     U64 CastlingRights(int Col);
@@ -188,7 +192,7 @@ public:
     void PushPos(Position Pos) { PositionMap.insert({ Pos.GetHash(), Pos }); };
     Position FindPos(U64 Hash) { return PositionMap.find(Hash)->second; };
 
-    void MoveGen(Position Pos);
+    void MoveGen(Position *Pos);
     void UndoMove(Move MoveUndo);
 
     void PrintGen(int dep);

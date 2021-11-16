@@ -2,6 +2,7 @@
 #include <random>
 #include <math.h>
 
+// Non-standard random numbers to have linear independence of hash keys
 std::mt19937_64 random(2137);
 std::uniform_int_distribution<U64> dist(std::llround(std::pow(2, 56)), std::llround(std::pow(2, 62)));
 
@@ -18,7 +19,7 @@ bool Position::AttackedSquare(eSquares Sq, eColour AtBy)
     if(BB_Misc.GetPawnAttacks(Sq, ~AtBy) & GetPos(AtBy, P)) return true;
 
     if(BB_Misc.GetKnightAttacks(Sq) & GetPos(AtBy, N)) return true;
-    if(BB_Misc.GetKingAttacks(Sq)   & GetPos(AtBy, N)) return true;
+    if(BB_Misc.GetKingAttacks(Sq)   & GetPos(AtBy, K)) return true;
     
     if(BB_Misc.GetRookAttacks(Sq, occ)   & (GetPos(AtBy, R) | GetPos(AtBy, Q))) return true;
     if(BB_Misc.GetBishopAttacks(Sq, occ) & (GetPos(AtBy, B) | GetPos(AtBy, Q))) return true;

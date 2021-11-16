@@ -8,10 +8,16 @@ int main()
     Position BB;
     Game gm;
     BB_Misc.Init();
-    BB.Init("rnbqkbnr/pppppQpp/8/7B/8/8/PPPPPPPP/RNBQKBNR b KQkq - 0 1");
+    BB.Init("krb5/8/8/8/8/p7/P7/K7 w - - 0 1");
     gm.Init(BB);
-    gm.MoveGen(BB);
+    gm.MoveGen(&BB);
     gm.PrintGen(0);
+
+    if (BB.state == 1)
+        printf("It's a mate!");
+
+    if (BB.state == 2)
+        printf("It's a stalemate!");
 
     system("Pause");
     
