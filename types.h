@@ -179,18 +179,30 @@ public:
     void UpdateHashKey(eSquares StartingSq, eSquares TargetSq);
 };
 
+typedef struct Vertex
+{
+    // Doubly linked list
+    struct Vertex* leftSib  = NULL; // if leftSib = NULL it's the first element
+    struct Vertex* rightSib = NULL; // if rightSib = NULL it's the last element
+
+    std::vector<struct Vertex*> children = {};
+    Position Pos = {};
+
+    void depth(pVertex v);
+} *pVertex;
+
 class Game
 {
 private:
-    std::unordered_map<U64, Position> PositionMap;
-    std::vector<std::vector<U64>> MoveList; // 2d vector, first dim is depth, second is positions in this depth
+    std::unordered_map<U64, pVertex> PositionMap;
+    pVertex PositionTree = NULL; // 2d vector, first dim is depth, second is positions in this depth
     int Depth = 0;
        
 public:
     void Init(Position Pos);
     
-    void PushPos(Position Pos) { PositionMap.insert({ Pos.GetHash(), Pos }); };
-    Position FindPos(U64 Hash) { return PositionMap.find(Hash)->second; };
+    void PushPos(U64 Hash, pVertex v) { PositionMap.insert({ Hash, v }); };
+    pVertex FindPos(U64 Hash) { return PositionMap.find(Hash)->second; };
 
     void MoveGen(Position *Pos);
     void UndoMove(Move MoveUndo);

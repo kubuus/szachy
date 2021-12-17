@@ -4,10 +4,15 @@
 // the position tree, and then inserts the position.
 void Game::Init(Position Pos)
 {
+	pVertex root = new Vertex;
+	root->children.push_back(PositionTree);
+	root->Pos = Pos;
+	PositionTree = root;
+	delete root;
+
 	if(Pos.Undo)
 		Init(*Pos.Undo);
-
-	PositionMap.insert({ Pos.GetHash(), Pos });
+	 
 }
 
 // Generates all moves from a position
