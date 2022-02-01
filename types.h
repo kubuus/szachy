@@ -25,7 +25,6 @@ int static PopCount(U64 bb) {
     return __builtin_popcountll(bb);
 #endif
 #if defined(_MSC_VER)
-    //#include <intrin.h>
     return __popcnt64(bb);
 #endif
 }
@@ -43,6 +42,7 @@ enum ePiece {wP, wN, wB, wR, wQ, wK, bP, bN, bB, bR, bQ, bK, no_Piece};
 enum eFiles {A_FILE, B_FILE, C_FILE, D_FILE, E_FILE, F_FILE, G_FILE, H_FILE};
 enum eRanks {RANK_1, RANK_2, RANK_3, RANK_4, RANK_5, RANK_6, RANK_7, RANK_8};
 enum eMoveType {QUIET, CAPTURE, DOUBLE_PAWN_PUSH, EN_PASSANT_CAPTURE, K_CASTLE, Q_CASTLE, N_PROMOTION, B_PROMOTION, R_PROMOTION, Q_PROMOTION, NO_TYPE};
+enum evalMove {PV_MOVE, HASH_MOVE, KILLER_MOVE, };
 enum eSquares {
     a1, b1, c1, d1, e1, f1, g1, h1,
     a2, b2, c2, d2, e2, f2, g2, h2,
@@ -181,15 +181,22 @@ public:
 
 typedef struct Vertex
 {
-    // Doubly linked list
-    struct Vertex* leftSib  = NULL; // if leftSib = NULL it's the first element
-    struct Vertex* rightSib = NULL; // if rightSib = NULL it's the last element
-
-    std::vector<struct Vertex*> children = {};
+    std::vector<struct Vertex*> children = {};  // if no children, then it's a leaf
     Position Pos = {};
 
-    void depth(pVertex v);
+    void depth(Vertex* v);
+    void MoveGen();
+
 } *pVertex;
+
+struct Table
+{
+    Move EvaluatedMove = {};
+    int Depth = 0;
+    int Score = 0;
+    char NodeType = -1; // 0 for exact score, 1 for upper bound, 2 for lower bound, -1 for nothing
+    unsigned Age = 0;
+};
 
 class Game
 {
@@ -204,7 +211,7 @@ public:
     void PushPos(U64 Hash, pVertex v) { PositionMap.insert({ Hash, v }); };
     pVertex FindPos(U64 Hash) { return PositionMap.find(Hash)->second; };
 
-    void MoveGen(Position *Pos);
+    void MoveGen(Position* Pos);
     void UndoMove(Move MoveUndo);
 
     void PrintGen(int dep);
