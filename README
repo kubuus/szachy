@@ -1,13 +1,18 @@
-The Untitled General Chess Project
+The Untitled Chess Engine Project
 
-The current goal is to implement a working chess board which can accurately play chess and determine the legality of moves.
+The overall goal of this project is to enhance my C++ skills, and my managment of projects. 
+Why I chose a chess engine still remains a mystery to me, but I really am having fun doing it.
+Also while working on it I decided to start using Git for the first time, so here I am!
+
+I've had a break from working because of university and personal issues, but I hope to be back on it soon.
+
+The current goal is to implement a search architecture, and basic evaluation function.
 
 TODO list:
-    1. Implement a proper moving function.
-    2. A way of determining if someone is in check, checkmate, stalemate.
-    3. System to interact with the program (probably by standard chess notation parser or something like that).
-
-This project might seem convoluted and overenginnered, but this is because I may later repurpose it to be a chess engine,
-and also because I've read an innapropriate amount of chessprogramming.org.
+    1. Implement a search tree complete with a alpha-beta algorithm.
+    2. A simple evalution function with piece-boards and mobility.
+    3. A way to interact with the program.
+    
+To everyone interested in this topic I can't recommend enough the chessproggraming.com wiki.
 
 Cheers!
