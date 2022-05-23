@@ -123,6 +123,7 @@
     </ClCompile>
     <ClCompile Include="move.cpp" />
     <ClCompile Include="game.cpp" />
+    <ClCompile Include="eval.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="magicmoves.h" />

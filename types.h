@@ -169,6 +169,7 @@ public:
     void MakeMove(Move Movedo);
     bool IsLegal(Move Move);
 
+    int GamePhase();
     void Print();
     void PrintBB(U64 bb);
     bool AttackedSquare(eSquares Square, eColour Col);
@@ -181,40 +182,35 @@ public:
 
 typedef struct Vertex
 {
-    std::vector<struct Vertex*> children = {};  // if no children, then it's a leaf
+    std::vector<struct Vertex*> children = {};
     Position Pos = {};
-
-    void depth(Vertex* v);
+    float Score = 0;
+    char NodeType = -1; // 0 for PV-Node, 1 for cut-node, 2 for all-node, -1 for nothing
     void MoveGen();
+    void Evaluate();
 
 } *pVertex;
 
-struct Table
+struct TableEntry
 {
     Move EvaluatedMove = {};
+    U64 Hash = 0;
     int Depth = 0;
-    int Score = 0;
-    char NodeType = -1; // 0 for exact score, 1 for upper bound, 2 for lower bound, -1 for nothing
-    unsigned Age = 0;
+    float Score = 0;
+    char NodeType = -1;
+    unsigned Age = 0;    
 };
 
 class Game
 {
 private:
-    std::unordered_map<U64, pVertex> PositionMap;
-    pVertex PositionTree = NULL; // 2d vector, first dim is depth, second is positions in this depth
-    int Depth = 0;
+    std::unordered_map<U64, TableEntry> Table = {};
+    pVertex PositionTree = NULL;
        
 public:
     void Init(Position Pos);
     
-    void PushPos(U64 Hash, pVertex v) { PositionMap.insert({ Hash, v }); };
-    pVertex FindPos(U64 Hash) { return PositionMap.find(Hash)->second; };
+    void PushPos(U64 Hash, TableEntry v) { Table.insert({ Hash, v }); };
 
-    void MoveGen(Position* Pos);
-    void UndoMove(Move MoveUndo);
-
-    void PrintGen(int dep);
+    void Evaluate(int Depth);
 };
-
-

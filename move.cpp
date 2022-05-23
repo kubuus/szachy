@@ -147,13 +147,6 @@ void Position::MakeMove(Move MoveDo)
     HashKey ^= ~U64(0);
 }
 
-// This will be easy to implement when there will be a position tree. Then we can just
-// Unhash the HashKey to get the remembered position and set it to the current one.
-void Game::UndoMove(Move MoveUndo)
-{
-    return;
-}
-
 // Method for checking legality of moves.
 // Works for any move, even not generated inside the program.
 bool Position::IsLegal(Move MoveDo)

@@ -10,8 +10,6 @@ int main()
     BB_Misc.Init();
     BB.Init("krb5/8/8/8/8/p7/P7/K7 w - - 0 1");
     gm.Init(BB);
-    gm.MoveGen(&BB);
-    gm.PrintGen(0);
 
     if (BB.state == 1)
         printf("It's a mate!");

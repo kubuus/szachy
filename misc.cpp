@@ -46,6 +46,21 @@ U64 Position::InBetween(eSquares sq1, eSquares sq2) {
    return line & btwn;   /* return the bits on that line in-between */
 }
 
+// Returns the evaluated phase of the game
+// 0 for the opening
+// 1 for the middlegame
+// 2 for the endgame
+int Position::GamePhase()
+{
+    if (GetPos(NC, NPT) < 13 || ((GetPos(NC, K) | GetPos(NC, P)) == GetPos(NC, NPT)))
+        return 2;
+    
+    if (move_no > 10)
+        return 1;
+
+        return 0;
+}
+
 void Position::UpdatePieceList(eSquares StartingSq, eSquares TargetSq, ePiece Piece)
 {
     PieceList[StartingSq] = no_Piece;
