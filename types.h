@@ -34,7 +34,8 @@ U64 static LS1B(U64 bb) {return bb & -bb;}
 
 
 enum eColour {White, Black, NC}; 
-inline eColour operator~(eColour Col) {return eColour(Col ^ Black);}; 
+inline eColour operator~(eColour Col) {return eColour(Col ^ Black);};
+inline ePieceType operator++(ePieceType pc) { return ePieceType((pc + 1) % 7); };
 
 enum ePieceType {P, N, B, R, Q, K, NPT};
 
@@ -42,7 +43,6 @@ enum ePiece {wP, wN, wB, wR, wQ, wK, bP, bN, bB, bR, bQ, bK, no_Piece};
 enum eFiles {A_FILE, B_FILE, C_FILE, D_FILE, E_FILE, F_FILE, G_FILE, H_FILE};
 enum eRanks {RANK_1, RANK_2, RANK_3, RANK_4, RANK_5, RANK_6, RANK_7, RANK_8};
 enum eMoveType {QUIET, CAPTURE, DOUBLE_PAWN_PUSH, EN_PASSANT_CAPTURE, K_CASTLE, Q_CASTLE, N_PROMOTION, B_PROMOTION, R_PROMOTION, Q_PROMOTION, NO_TYPE};
-enum evalMove {PV_MOVE, HASH_MOVE, KILLER_MOVE, };
 enum eSquares {
     a1, b1, c1, d1, e1, f1, g1, h1,
     a2, b2, c2, d2, e2, f2, g2, h2,
