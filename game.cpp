@@ -1,5 +1,4 @@
 #include "types.h"
-#include <type_traits>
 
 // Initializes game class, checks if there were any previous moves, inserts them into
 // the position tree, and then inserts the position.

@@ -32,12 +32,13 @@ int static PopCount(U64 bb) {
 // Function for isolating LS1B in a bitboard
 U64 static LS1B(U64 bb) {return bb & -bb;}
 
-
+enum ePieceType {P, N, B, R, Q, K, NPT};
 enum eColour {White, Black, NC}; 
+
 inline eColour operator~(eColour Col) {return eColour(Col ^ Black);};
 inline ePieceType operator~(ePieceType pc) { return ePieceType((pc + 1) % 7); };
 
-enum ePieceType {P, N, B, R, Q, K, NPT};
+
 
 enum ePiece {wP, wN, wB, wR, wQ, wK, bP, bN, bB, bR, bQ, bK, no_Piece};
 enum eFiles {A_FILE, B_FILE, C_FILE, D_FILE, E_FILE, F_FILE, G_FILE, H_FILE};

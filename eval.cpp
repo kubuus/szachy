@@ -8,7 +8,7 @@ float Vertex::Mobility()
 	{
 		ePiece pc = Pos.PieceList[i];
 		if (pc != no_Piece) 
-			pc / 2 == 1 ? bAttacks : wAttacks |= BB_Misc.GetAttacks(ePieceType(pc % 6), eSquares(i), Pos.GetPos(NC, NPT), eColour(pc / 2)) & ~(Pos.GetPos(eColour(pc / 2), NPT));
+			(pc / 2 == 1 ? bAttacks : wAttacks) |= BB_Misc.GetAttacks(ePieceType(pc % 6), eSquares(i), Pos.GetPos(NC, NPT), eColour(pc / 2)) & ~(Pos.GetPos(eColour(pc / 2), NPT));
 	}
 	float mob = PopCount(wAttacks) - PopCount(bAttacks);
 	return mob / 32.0;
