@@ -35,7 +35,7 @@ U64 static LS1B(U64 bb) {return bb & -bb;}
 
 enum eColour {White, Black, NC}; 
 inline eColour operator~(eColour Col) {return eColour(Col ^ Black);};
-inline ePieceType operator++(ePieceType pc) { return ePieceType((pc + 1) % 7); };
+inline ePieceType operator~(ePieceType pc) { return ePieceType((pc + 1) % 7); };
 
 enum ePieceType {P, N, B, R, Q, K, NPT};
 
@@ -188,6 +188,7 @@ typedef struct Vertex
     char NodeType = -1; // 0 for PV-Node, 1 for cut-node, 2 for all-node, -1 for nothing
     void MoveGen();
     void Evaluate();
+    float Mobility();
 
 } *pVertex;
 
