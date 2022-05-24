@@ -25,9 +25,8 @@ void Vertex::MoveGen()
 	std::vector<Move> NextMoves;
 
 	// Iterating through all piece types
-	for (int i = 0; i < 6; i++)
+	for (ePieceType Pi = P; Pi < NPT; Pi = ++Pi)
 	{
-		ePieceType Pi = ePieceType(i);
 		U64 bb = Pos.GetPos(Col, Pi);
 		switch (Pi) {
 		case(P):
@@ -39,7 +38,20 @@ void Vertex::MoveGen()
 				while (attacks)
 				{
 					Move mv;
-					mv.Init(sq, eSquares(TrailingZeros(attacks)), QUIET, P);
+					eSquares Dest = eSquares(TrailingZeros(attacks));
+					if (attacks & RANK_1_BB || attacks & RANK_8_BB)
+					{
+						int cap = (Pos.PieceList[Dest] == no_Piece) * 5;
+						mv.Init(sq, Dest, eMoveType(Q_PROMOTION + cap), P);
+						NextMoves.push_back(mv);
+						mv.Init(sq, Dest, eMoveType(R_PROMOTION + cap), P);
+						NextMoves.push_back(mv);
+						mv.Init(sq, Dest, eMoveType(B_PROMOTION + cap), P);
+						NextMoves.push_back(mv);
+						mv.Init(sq, Dest, eMoveType(N_PROMOTION + cap), P);
+					}
+					else
+						mv.Init(sq, Dest, Pos.PieceList[Dest] == no_Piece ? QUIET : CAPTURE, P);
 					NextMoves.push_back(mv);
 					attacks &= ~(-attacks); // Removes LS1B to iterate further
 				}
@@ -76,7 +88,8 @@ void Vertex::MoveGen()
 				while (attacks)
 				{
 					Move mv;
-					mv.Init(sq, eSquares(TrailingZeros(attacks)), QUIET, K);
+					eSquares Dest = eSquares(TrailingZeros(attacks));
+					mv.Init(sq, Dest, Pos.PieceList[Dest] == no_Piece ? QUIET : CAPTURE, K);
 					NextMoves.push_back(mv);
 					attacks &= ~(-attacks);
 				}
@@ -105,7 +118,8 @@ void Vertex::MoveGen()
 				while (attacks)
 				{
 					Move mv;
-					mv.Init(sq, eSquares(TrailingZeros(attacks)), QUIET, Pi);
+					eSquares Dest = eSquares(TrailingZeros(attacks));
+					mv.Init(sq, Dest, Pos.PieceList[Dest] == no_Piece ? QUIET : CAPTURE, Pi);
 					NextMoves.push_back(mv);
 					attacks &= ~(-attacks);
 				}
@@ -116,7 +130,6 @@ void Vertex::MoveGen()
 				
 	}
 
-	std::vector<U64> temp;
 	for (int i = 0; i < NextMoves.size(); i++)
 	{
 		if (Pos.IsLegal(NextMoves[i]))

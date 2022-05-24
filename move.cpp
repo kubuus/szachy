@@ -37,7 +37,7 @@ void Position::MakeMove(Move MoveDo)
         HashKey ^= ZobCR[CastRights];
     }
 
-    else if(MoveDo.MoveType > Q_CASTLE)
+    else if(MoveDo.MoveType > Q_CASTLE && MoveDo.MoveType != CAPTURE)
     {
         Colour_BB[Turn] ^= bb;
         if(Colour_BB[~Turn] & sq(MoveDo.MoveTo))
@@ -47,32 +47,30 @@ void Position::MakeMove(Move MoveDo)
             HashKey ^= ZobPieces[PieceList[MoveDo.MoveTo]][MoveDo.MoveTo];
         }
         HashKey ^= ZobPieces[PieceList[MoveDo.MoveFrom]][MoveDo.MoveFrom];
-        switch (MoveDo.MoveType)
+        if (MoveDo.MoveType == Q_PROMOTION || MoveDo.MoveType == Q_PROMOTION_CAPTURE)
         {
-        case N_PROMOTION:
-            Piece_BB[P] ^= MoveDo.MoveFrom;
-            Piece_BB[N] ^= MoveDo.MoveTo;
-            UpdatePieceList(MoveDo.MoveFrom, MoveDo.MoveTo, ePiece(wN + Turn * 6));
-            break;
-        case R_PROMOTION:
-            Piece_BB[P] ^= MoveDo.MoveFrom;
-            Piece_BB[R] ^= MoveDo.MoveTo;
-            UpdatePieceList(MoveDo.MoveFrom, MoveDo.MoveTo, ePiece(wR + Turn * 6));
-            break;
-        case B_PROMOTION:
-            Piece_BB[P] ^= MoveDo.MoveFrom;
-            Piece_BB[B] ^= MoveDo.MoveTo;
-            UpdatePieceList(MoveDo.MoveFrom, MoveDo.MoveTo, ePiece(wB + Turn * 6));
-            break;
-        case Q_PROMOTION:
             Piece_BB[P] ^= MoveDo.MoveFrom;
             Piece_BB[Q] ^= MoveDo.MoveTo;
             UpdatePieceList(MoveDo.MoveFrom, MoveDo.MoveTo, ePiece(wQ + Turn * 6));
-            break;
+        }
+        else if (MoveDo.MoveType == R_PROMOTION || MoveDo.MoveType == R_PROMOTION_CAPTURE)
+        {
+            Piece_BB[P] ^= MoveDo.MoveFrom;
+            Piece_BB[R] ^= MoveDo.MoveTo;
+            UpdatePieceList(MoveDo.MoveFrom, MoveDo.MoveTo, ePiece(wR + Turn * 6));
+        }
+        else if (MoveDo.MoveType == B_PROMOTION || MoveDo.MoveType == B_PROMOTION_CAPTURE)
+        {
+            Piece_BB[P] ^= MoveDo.MoveFrom;
+            Piece_BB[B] ^= MoveDo.MoveTo;
+            UpdatePieceList(MoveDo.MoveFrom, MoveDo.MoveTo, ePiece(wB + Turn * 6));
+        }
         
-        default:
-            printf("What");
-            return;
+        else if (MoveDo.MoveType == N_PROMOTION || MoveDo.MoveType == N_PROMOTION_CAPTURE)
+        {
+            Piece_BB[P] ^= MoveDo.MoveFrom;
+            Piece_BB[N] ^= MoveDo.MoveTo;
+            UpdatePieceList(MoveDo.MoveFrom, MoveDo.MoveTo, ePiece(wN + Turn * 6));
         }
         HashKey ^= ZobPieces[PieceList[MoveDo.MoveTo]][MoveDo.MoveTo];
     }
@@ -130,7 +128,7 @@ void Position::MakeMove(Move MoveDo)
         HashKey ^= ZobCR[CastRights];
     }
 
-    if((MoveDo.MoveType != CAPTURE) && (MoveDo.PieceType != P))
+    if((MoveDo.MoveType < CAPTURE) && (MoveDo.PieceType != P))
         ply++; else ply = 0;
     
     Turn = ~Turn;
@@ -195,8 +193,6 @@ bool Position::IsLegal(Move MoveDo)
 
     switch(MoveDo.MoveType)
     {
-        case(QUIET):
-            return true;
         case(DOUBLE_PAWN_PUSH):
             if(MoveDo.PieceType != P)
                 return false;
