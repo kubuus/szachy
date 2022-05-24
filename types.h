@@ -185,11 +185,11 @@ typedef struct Vertex
 {
     std::vector<struct Vertex*> children = {};
     Position Pos = {};
-    float Score = 0;
+    int Score = 0;
     char NodeType = -1; // 0 for PV-Node, 1 for cut-node, 2 for all-node, -1 for nothing
     void MoveGen();
     void Evaluate();
-    float Mobility();
+    int Mobility();
 
 } *pVertex;
 
@@ -198,7 +198,7 @@ struct TableEntry
     Move EvaluatedMove = {};
     U64 Hash = 0;
     int Depth = 0;
-    float Score = 0;
+    int Score = 0;
     char NodeType = -1;
     unsigned Age = 0;    
 };
