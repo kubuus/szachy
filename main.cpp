@@ -6,16 +6,17 @@ Bitboards BB_Misc;
 int main()
 {
     Position BB;
-    Game gm;
+    Vertex v;
     BB_Misc.Init();
-    BB.Init("krb5/8/8/8/8/p7/P7/K7 w - - 0 1");
-    gm.Init(BB);
+    BB.Init("krb5/8/8/8/8/p7/PPP5/K7 w - - 0 1");
+    v.Pos = BB;
+    v.MoveGen();
 
-    if (BB.state == 1)
-        printf("It's a mate!");
-
-    if (BB.state == 2)
-        printf("It's a stalemate!");
+    v.Pos.Print();
+    for (int i = 0; i < v.children.size(); i++)
+    {
+        v.children[i]->Pos.Print();
+    }
 
     system("Pause");
     

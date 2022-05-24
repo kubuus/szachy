@@ -134,12 +134,13 @@ void Vertex::MoveGen()
 	{
 		if (Pos.IsLegal(NextMoves[i]))
 		{
-			Position newPos = Pos;
-			newPos.MakeMove(NextMoves[i]);
-			newPos.Undo = &Pos;
-			Vertex newVertex;
-			newVertex.Pos = newPos;
-			children.push_back(&newVertex);
+			Position *newPos = new Position;
+			*newPos = Pos;
+			newPos->MakeMove(NextMoves[i]);
+			newPos->Undo = &Pos;
+			pVertex newVertex = new Vertex;
+			newVertex->Pos = *newPos;
+			children.push_back(newVertex);
 		}
 	}
 	if (children.size() == 0) 

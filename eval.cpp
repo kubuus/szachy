@@ -18,7 +18,7 @@ int Vertex::Mobility()
 void Vertex::Evaluate()
 {
 	int PieceValues[6] = { 100, 300, 300, 500, 800, 20000 };
-	for (ePieceType i = P; i < NPT; ~i)
+	for (ePieceType i = P; i < NPT; i = ++i)
 		Score += PopCount(Pos.GetPos(White, i)) * PieceValues[i] - PopCount(Pos.GetPos(Black, i)) * PieceValues[i];
 	Score += Mobility();
 }
